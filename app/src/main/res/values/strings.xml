@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">hackthon15</string>
-
-    <string name="hello_world">Hello world!</string>
+    <string name="hello_hackers">Hello Hackers!</string>
     <string name="action_settings">Settings</string>
 </resources>
