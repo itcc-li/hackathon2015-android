@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "li.itcc.hackthon15"
+        applicationId "li.itcc.hackathon15"
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
