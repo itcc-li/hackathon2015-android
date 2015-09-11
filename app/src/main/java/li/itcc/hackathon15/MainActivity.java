@@ -1,4 +1,4 @@
-package li.itcc.hackthon15;
+package li.itcc.hackathon15;
 
 import android.app.Activity;
 import android.os.Bundle;
