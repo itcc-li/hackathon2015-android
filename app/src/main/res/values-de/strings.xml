@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Hackathon 2015</string>
+
+    <string name="title_section1">Auswahl 1</string>
+    <string name="title_section2">Auswahl 2</string>
+    <string name="title_section3">Auswahl 3</string>
+
+    <string name="navigation_drawer_open">Seitenmenu öffnen</string>
+    <string name="navigation_drawer_close">Seitenmenu schliessen</string>
+
+    <string name="action_example">Beispiel</string>
+
+    <string name="action_settings">Einstellungen</string>
+</resources>
