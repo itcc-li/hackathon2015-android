@@ -23,4 +23,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     // latest version see http://developer.android.com/tools/support-library/index.html#revisions
     compile 'com.android.support:appcompat-v7:23.0.1'
+    // see https://developers.google.com/android/guides/setup
+    compile 'com.google.android.gms:play-services-maps:7.8.0'
 }

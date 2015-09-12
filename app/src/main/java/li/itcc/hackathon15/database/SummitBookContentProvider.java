@@ -25,8 +25,8 @@ public class SummitBookContentProvider extends ContentProvider {
 
     static {
         devicesUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        devicesUriMatcher.addURI(DatabaseContract.AUTHORITY, "books", ALL_ROWS);
-        devicesUriMatcher.addURI(DatabaseContract.AUTHORITY, "books/#", SINGLE_ROW);
+        devicesUriMatcher.addURI(DatabaseContract.AUTHORITY, "pois", ALL_ROWS);
+        devicesUriMatcher.addURI(DatabaseContract.AUTHORITY, "pois/#", SINGLE_ROW);
     }
 
     private SummitBookDBOpenHelper dbOpenHelper;
@@ -56,7 +56,7 @@ public class SummitBookContentProvider extends ContentProvider {
         default:
             break;
         }
-        queryBuilder.setTables(SummitBookDatabaseConstants.TABLE_BOOKS);
+        queryBuilder.setTables(SummitBookDatabaseConstants.TABLE_POIS);
         Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, groupBy, having, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
@@ -89,7 +89,7 @@ public class SummitBookContentProvider extends ContentProvider {
         if (selection == null) {
             selection = "1";
         }
-        int deleteCount = db.delete(SummitBookDatabaseConstants.TABLE_BOOKS, selection, selectionArgs);
+        int deleteCount = db.delete(SummitBookDatabaseConstants.TABLE_POIS, selection, selectionArgs);
         getContext().getContentResolver().notifyChange(uri, null);
         return deleteCount;
     }
@@ -97,7 +97,7 @@ public class SummitBookContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        long id = db.insert(SummitBookDatabaseConstants.TABLE_BOOKS, null, values);
+        long id = db.insert(SummitBookDatabaseConstants.TABLE_POIS, null, values);
         if (id > -1) {
             Uri insertedId = ContentUris.withAppendedId(DatabaseContract.Books.CONTENT_URI, id);
             getContext().getContentResolver().notifyChange(insertedId, null);
@@ -118,7 +118,7 @@ public class SummitBookContentProvider extends ContentProvider {
         default:
             break;
         }
-        int updateCount = db.update(SummitBookDatabaseConstants.TABLE_BOOKS, values, selection, selectionArgs);
+        int updateCount = db.update(SummitBookDatabaseConstants.TABLE_POIS, values, selection, selectionArgs);
         getContext().getContentResolver().notifyChange(uri, null);
         return updateCount;
     }

@@ -12,12 +12,12 @@ class SummitBookDBOpenHelper extends SQLiteOpenHelper {
 
     // SQL Statement to create a new database.
     private static final String DATABASE_CREATE = "create table " +
-    SummitBookDatabaseConstants.TABLE_BOOKS + " (" + DatabaseContract.Books._ID +
+    SummitBookDatabaseConstants.TABLE_POIS + " (" + DatabaseContract.Books._ID +
     " integer primary key autoincrement, " +
-    DatabaseContract.Books.BOOK_ID + " integer, " +
-    DatabaseContract.Books.BOOK_LONGITUDE + " real, " +
-    DatabaseContract.Books.BOOK_LATITUDE + " real, " +
-    DatabaseContract.Books.BOOK_NAME + " string not null);";
+    DatabaseContract.Books.POI_ID + " integer, " +
+    DatabaseContract.Books.POI_LONGITUDE + " real, " +
+    DatabaseContract.Books.POI_LATITUDE + " real, " +
+    DatabaseContract.Books.POI_NAME + " string not null);";
 
     public SummitBookDBOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,7 +45,7 @@ class SummitBookDBOpenHelper extends SQLiteOpenHelper {
         // comparing oldVersion and newVersion values.
 
         // The simplest case is to drop the old table and create a new one.
-        db.execSQL("DROP TABLE IF IT EXISTS " + SummitBookDatabaseConstants.TABLE_BOOKS);
+        db.execSQL("DROP TABLE IF IT EXISTS " + SummitBookDatabaseConstants.TABLE_POIS);
         // Create a new one.
         onCreate(db);
     }
