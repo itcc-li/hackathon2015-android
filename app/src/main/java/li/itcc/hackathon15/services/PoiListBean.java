@@ -10,4 +10,8 @@ public class PoiListBean {
     public PoiBean[] getAllPolis() {
         return allPolis;
     }
+
+    public void setAllPolis(PoiBean[] allPolis) {
+        this.allPolis = allPolis;
+    }
 }
