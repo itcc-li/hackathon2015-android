@@ -100,7 +100,9 @@ public class GPSDeliverer implements LocationListener {
             if (fAutoReset) {
                 reset();
             }
-            fListener.onLocation(result);
+            if (fListener != null) {
+                fListener.onLocation(result);
+            }
         }
     }
 

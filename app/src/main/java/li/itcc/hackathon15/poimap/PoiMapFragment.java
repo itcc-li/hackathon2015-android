@@ -21,8 +21,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
@@ -74,58 +72,21 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         }
     }
 
-
-    private void exampleAction() {
-        fFunction++;
-        int func = 1;
-        if (fFunction == func++) {
-            LatLng eschen = new LatLng(47.209953, 9.528884);
-
-            //fMap.setMyLocationEnabled(true);
-            fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eschen, 19));
-            fMap.addMarker(new MarkerOptions()
-                    .title("Sydney")
-                    .snippet("The most populous city in Australia.")
-                    .position(eschen));
-        }
-        else if (fFunction == func++) {
-            fMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        }
-
-        else if (fFunction == func++) {
-            PolylineOptions rectOptions = new PolylineOptions()
-                    .add(new LatLng(47.209953,9.528884))
-                    .add(new LatLng(47.209900,9.528800))
-                    .color(0xFFFF0000);
-            Polyline polyline = fMap.addPolyline(rectOptions);
-        }
-        else if (fFunction == func++) {
-            if (fMarker != null) {
-                fMarker.remove();
-                fMarker = null;
-                fPointCounter = 0;
-            }
-            fGpsDeliverer = new GPSDeliverer(getActivity(), 0L);
-            fGpsDeliverer.setListener(this);
-            fGpsDeliverer.setAutoReset(false);
-            fGpsDeliverer.startDelivery();
-        }
-        else if (fFunction == func++) {
-            fGpsDeliverer.reset();
-            fMarker.remove();
-            fMarker = null;
-        }
-        else if (fFunction == func++) {
-            fGpsDeliverer.stopDelivery();
-            fGpsDeliverer = null;
-            fFunction = 2;
-        }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(0, null, this);
+        fGpsDeliverer = new GPSDeliverer(getActivity(), 0L);
+        fGpsDeliverer.setListener(this);
+        fGpsDeliverer.setAutoReset(false);
+        fGpsDeliverer.startDelivery();
     }
 
     @Override
     public void onLocation(Location location) {
         LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
         String title = Integer.toString(fPointCounter++);
+        fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 19));
         if (fMarker == null) {
             fMarker = fMap.addMarker(new MarkerOptions()
                     .title(title)
@@ -134,6 +95,10 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         else {
             fMarker.setPosition(loc);
             fMarker.setTitle(title);
+        }
+        if (fGpsDeliverer != null) {
+            fGpsDeliverer.stopDelivery();
+            fGpsDeliverer = null;
         }
     }
 
@@ -166,6 +131,9 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         clearAllMarkers();
+        if (data == null) {
+            return;
+        }
         int longitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LONGITUDE);
         int latitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LATITUDE);
         int nameCol = data.getColumnIndex(DatabaseContract.Pois.POI_NAME);
