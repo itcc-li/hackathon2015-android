@@ -23,6 +23,7 @@ import android.widget.TextView;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.database.DatabaseContract;
+import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 
 
 /**
@@ -32,6 +33,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     private BookCursorAdapter dataAdapter;
     private ListView listView;
     private TextView emptyText;
+    private View createButton;
 
     public PoiListFragment() {
     }
@@ -48,6 +50,8 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         View rootView = inflater.inflate(R.layout.poi_list_fragment, container, false);
         this.listView = (ListView)rootView.findViewById(android.R.id.list);
         this.emptyText = (TextView)rootView.findViewById(android.R.id.empty);
+        this.createButton = rootView.findViewById(R.id.viw_add_button);
+        this.createButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
         this.dataAdapter = new BookCursorAdapter(activity);
         this.listView.setAdapter(dataAdapter);
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -59,6 +63,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         updateTableVisibility();
         return rootView;
     }
+
 
     private void onListItemClick(int position, long id) {
         //Intent intent = BookDetailActivity.createStartIntent(getActivity(), id);

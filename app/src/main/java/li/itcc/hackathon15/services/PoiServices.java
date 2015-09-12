@@ -62,4 +62,8 @@ public class PoiServices {
         return  result;
     }
 
+    public void savePoiDetails(PoiDetailBean param) throws Exception {
+        //throw new IOException("TODO");
+        Thread.sleep(1000);
+    }
 }

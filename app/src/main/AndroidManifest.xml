@@ -29,6 +29,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".poiadd.PoiAddActivity"/>
+
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyBNkEp6jz3pBholS9jIx0nWTmj8ow09Buk"/>
 
     </application>
