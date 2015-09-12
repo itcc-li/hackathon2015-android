@@ -11,4 +11,12 @@
     <string name="action_example">Beispiel</string>
 
     <string name="action_settings">Einstellungen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
+    <string name="name">Name</string>
+    <string name="description">Beschreibung</string>
+    <string name="saving">Speichern...</string>
+    <string name="saving_failed">Speichern fehlgeschlagen.</string>
+    <string name="saving_done">Erfolgreich gespeichert.</string>
+
 </resources>

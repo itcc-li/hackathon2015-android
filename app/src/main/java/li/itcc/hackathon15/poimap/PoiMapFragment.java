@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.support.v4.app.LoaderManager;
+import android.widget.FrameLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,6 +30,7 @@ import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.database.DatabaseContract;
 import li.itcc.hackathon15.gps.GPSDeliverer;
 import li.itcc.hackathon15.gps.GPSLocationListener;
+import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -40,6 +42,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     private int fPointCounter;
     private Marker fMarker;
     private ArrayList<Marker> fMarkers = new ArrayList<Marker>();
+    private View fCreateButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,8 +53,17 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
+        // trick: we have to add a floating button so we add an extra layer
+        container.removeView(v);
         fMap = getMap();
-        return v;
+        View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
+        FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
+        fCreateButton = rootView.findViewById(R.id.viw_add_button);
+        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        container.removeView(v);
+        frame.addView(v, params);
+        return rootView;
     }
 
     @Override
