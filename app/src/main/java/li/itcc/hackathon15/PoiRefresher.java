@@ -3,6 +3,8 @@ package li.itcc.hackathon15;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import li.itcc.hackathon15.database.PoiTableUpdater;
+import li.itcc.hackathon15.services.PoiListBean;
 import li.itcc.hackathon15.services.PoiListQuery;
 import li.itcc.hackathon15.services.PoiServices;
 import li.itcc.hackathon15.tableutil.PoiConstants;
@@ -35,7 +37,9 @@ public class PoiRefresher {
             try {
                 PoiServices poiServices = new PoiServices(fContext, PoiConstants.URL);
                 PoiListQuery q = new PoiListQuery();
-                poiServices.getPoiList(q);
+                PoiListBean listBean = poiServices.getPoiList(q);
+                PoiTableUpdater poiTableUpdater = new PoiTableUpdater(fContext);
+                poiTableUpdater.updatePoiTable(listBean);
             }
             catch (Throwable th) {
                 fException = th;
