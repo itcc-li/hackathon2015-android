@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
  */
 public class DatabaseContract {
 
-    public static final String AUTHORITY = "li.itcc.hackathon15";
+    public static final String AUTHORITY = "li.itcc.provider.hackathon15";
 
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 

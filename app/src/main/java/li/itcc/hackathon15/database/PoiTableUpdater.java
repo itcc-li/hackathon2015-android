@@ -3,9 +3,6 @@ package li.itcc.hackathon15.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.util.Log;
-
-import java.sql.PreparedStatement;
 
 import li.itcc.hackathon15.services.PoiListBean;
 
@@ -16,7 +13,7 @@ public class PoiTableUpdater  {
 
 
     private final Context fContext;
-    private SummitBookDBOpenHelper dbOpenHelper;
+    private PoiDBOpenHelper dbOpenHelper;
 
     public PoiTableUpdater(Context context) {
         fContext = context;
@@ -24,10 +21,10 @@ public class PoiTableUpdater  {
 
     public void updatePoiTable(PoiListBean listBean) throws Exception {
 
-        dbOpenHelper = new SummitBookDBOpenHelper(fContext);
+        dbOpenHelper = new PoiDBOpenHelper(fContext);
         SQLiteDatabase dbWrite = dbOpenHelper.getWritableDatabase();
 
-        String sql = "insert into " + SummitBookDatabaseConstants.TABLE_POIS + "(POI_NAME, POI_LONGITUDE, POI_LATITUDE) VALUES (?,?,?)";
+        String sql = "insert into " + PoiDatabaseConstants.TABLE_POIS + "(POI_NAME, POI_LONGITUDE, POI_LATITUDE) VALUES (?,?,?)";
         SQLiteStatement insert = dbWrite.compileStatement(sql);
 
         for (int i = 0; i < listBean.getAllPolis().length; i++) {
@@ -42,7 +39,7 @@ public class PoiTableUpdater  {
 
         SQLiteDatabase dbRead = dbOpenHelper.getReadableDatabase();
 
-        String sqlread = "select * from" + SummitBookDatabaseConstants.TABLE_POIS;
+        String sqlread = "select * from" + PoiDatabaseConstants.TABLE_POIS;
         //Log.d("DB", dbRead.query(""));
 
     }

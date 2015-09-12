@@ -5,21 +5,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-class SummitBookDBOpenHelper extends SQLiteOpenHelper {
+class PoiDBOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SummitBookDatabase.db";
     private static final int DATABASE_VERSION = 1;
 
     // SQL Statement to create a new database.
     private static final String DATABASE_CREATE = "create table " +
-    SummitBookDatabaseConstants.TABLE_POIS + " (" + DatabaseContract.Pois._ID +
+    PoiDatabaseConstants.TABLE_POIS + " (" + DatabaseContract.Pois._ID +
     " integer primary key autoincrement, " +
     DatabaseContract.Pois.POI_ID + " integer, " +
     DatabaseContract.Pois.POI_LONGITUDE + " real, " +
     DatabaseContract.Pois.POI_LATITUDE + " real, " +
     DatabaseContract.Pois.POI_NAME + " string not null);";
 
-    public SummitBookDBOpenHelper(Context context) {
+    public PoiDBOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -45,7 +45,7 @@ class SummitBookDBOpenHelper extends SQLiteOpenHelper {
         // comparing oldVersion and newVersion values.
 
         // The simplest case is to drop the old table and create a new one.
-        db.execSQL("DROP TABLE IF IT EXISTS " + SummitBookDatabaseConstants.TABLE_POIS);
+        db.execSQL("DROP TABLE IF IT EXISTS " + PoiDatabaseConstants.TABLE_POIS);
         // Create a new one.
         onCreate(db);
     }
