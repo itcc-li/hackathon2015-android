@@ -2,12 +2,18 @@ package li.itcc.hackathon15.poimap;
 
 
 import android.content.Context;
+import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import android.support.v4.app.LoaderManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,20 +24,24 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
+
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
+import li.itcc.hackathon15.database.DatabaseContract;
 import li.itcc.hackathon15.gps.GPSDeliverer;
 import li.itcc.hackathon15.gps.GPSLocationListener;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiMapFragment extends SupportMapFragment implements GPSLocationListener {
+public class PoiMapFragment extends SupportMapFragment implements GPSLocationListener, LoaderManager.LoaderCallbacks<Cursor> {
     private GoogleMap fMap;
     private int fFunction;
     private GPSDeliverer fGpsDeliverer;
     private int fPointCounter;
     private Marker fMarker;
+    private ArrayList<Marker> fMarkers = new ArrayList<Marker>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,7 +53,6 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
         fMap = getMap();
-
         return v;
     }
 
@@ -140,6 +149,50 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
 
     @Override
     public void onLocationSensorDisabled() {
+
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String[] projection = null;
+        String where = null;
+        String[] whereArgs = null;
+        String sortOrder = null;
+        Uri queryUri = DatabaseContract.Pois.CONTENT_URI;
+        CursorLoader loader = new CursorLoader(getActivity(), queryUri, projection, where, whereArgs, sortOrder);
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        clearAllMarkers();
+        int longitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LONGITUDE);
+        int latitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LATITUDE);
+        int nameCol = data.getColumnIndex(DatabaseContract.Pois.POI_NAME);
+        if (data.moveToFirst()) {
+            do {
+                double longitude = data.getDouble(longitudeCol);
+                double latitude = data.getDouble(latitudeCol);
+                String name = data.getString(nameCol);
+                LatLng loc = new LatLng(latitude, longitude);
+                Marker marker = fMap.addMarker(new MarkerOptions()
+                        .title(name)
+                        .position(loc));
+                fMarkers.add(marker);
+            } while (data.moveToNext());
+
+        }
+    }
+
+    private void clearAllMarkers() {
+        for (Marker marker: fMarkers) {
+            marker.remove();
+        }
+        fMarkers.clear();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 }

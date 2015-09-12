@@ -12,7 +12,7 @@ public class DatabaseContract {
 
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
-    public static class Books {
+    public static class Pois {
         public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/pois");
 
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.li.itcc.hackathon15.poi";

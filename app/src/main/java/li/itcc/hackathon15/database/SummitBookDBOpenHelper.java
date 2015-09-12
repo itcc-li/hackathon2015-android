@@ -12,12 +12,12 @@ class SummitBookDBOpenHelper extends SQLiteOpenHelper {
 
     // SQL Statement to create a new database.
     private static final String DATABASE_CREATE = "create table " +
-    SummitBookDatabaseConstants.TABLE_POIS + " (" + DatabaseContract.Books._ID +
+    SummitBookDatabaseConstants.TABLE_POIS + " (" + DatabaseContract.Pois._ID +
     " integer primary key autoincrement, " +
-    DatabaseContract.Books.POI_ID + " integer, " +
-    DatabaseContract.Books.POI_LONGITUDE + " real, " +
-    DatabaseContract.Books.POI_LATITUDE + " real, " +
-    DatabaseContract.Books.POI_NAME + " string not null);";
+    DatabaseContract.Pois.POI_ID + " integer, " +
+    DatabaseContract.Pois.POI_LONGITUDE + " real, " +
+    DatabaseContract.Pois.POI_LATITUDE + " real, " +
+    DatabaseContract.Pois.POI_NAME + " string not null);";
 
     public SummitBookDBOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

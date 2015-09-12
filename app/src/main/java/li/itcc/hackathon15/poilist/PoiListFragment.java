@@ -106,7 +106,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         String where = null;
         String[] whereArgs = null;
         String sortOrder = null;
-        Uri queryUri = DatabaseContract.Books.CONTENT_URI;
+        Uri queryUri = DatabaseContract.Pois.CONTENT_URI;
         CursorLoader loader = new CursorLoader(getActivity(), queryUri, projection, where, whereArgs, sortOrder);
         return loader;
     }
@@ -133,7 +133,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     private static class BookCursorAdapter extends SimpleCursorAdapter {
 
         public BookCursorAdapter(Context context) {
-            super(context, R.layout.poi_list_row, null, new String[]{DatabaseContract.Books.POI_NAME}, new int[]{R.id.txv_poi_name}, 0);
+            super(context, R.layout.poi_list_row, null, new String[]{DatabaseContract.Pois.POI_NAME}, new int[]{R.id.txv_poi_name}, 0);
         }
     }
 }

@@ -52,7 +52,7 @@ public class SummitBookContentProvider extends ContentProvider {
         switch(devicesUriMatcher.match(uri)) {
         case SINGLE_ROW:
             String rowID = uri.getPathSegments().get(1);
-            queryBuilder.appendWhere(DatabaseContract.Books._ID + "=" + rowID);
+            queryBuilder.appendWhere(DatabaseContract.Pois._ID + "=" + rowID);
         default:
             break;
         }
@@ -66,9 +66,9 @@ public class SummitBookContentProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch(devicesUriMatcher.match(uri)) {
         case ALL_ROWS:
-            return DatabaseContract.Books.CONTENT_TYPE;
+            return DatabaseContract.Pois.CONTENT_TYPE;
         case SINGLE_ROW:
-            return DatabaseContract.Books.CONTENT_ITEM_TYPE;
+            return DatabaseContract.Pois.CONTENT_ITEM_TYPE;
         default:
             throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
@@ -80,7 +80,7 @@ public class SummitBookContentProvider extends ContentProvider {
         switch(devicesUriMatcher.match(uri)) {
         case SINGLE_ROW:
             String rowID = uri.getPathSegments().get(1);
-            selection = DatabaseContract.Books._ID + "=" + rowID + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
+            selection = DatabaseContract.Pois._ID + "=" + rowID + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
         default:
             break;
         }
@@ -99,7 +99,7 @@ public class SummitBookContentProvider extends ContentProvider {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
         long id = db.insert(SummitBookDatabaseConstants.TABLE_POIS, null, values);
         if (id > -1) {
-            Uri insertedId = ContentUris.withAppendedId(DatabaseContract.Books.CONTENT_URI, id);
+            Uri insertedId = ContentUris.withAppendedId(DatabaseContract.Pois.CONTENT_URI, id);
             getContext().getContentResolver().notifyChange(insertedId, null);
             return insertedId;
         }
@@ -114,7 +114,7 @@ public class SummitBookContentProvider extends ContentProvider {
         switch(devicesUriMatcher.match(uri)) {
         case SINGLE_ROW:
             String rowID = uri.getPathSegments().get(1);
-            selection = DatabaseContract.Books._ID + "=" + rowID + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
+            selection = DatabaseContract.Pois._ID + "=" + rowID + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
         default:
             break;
         }
