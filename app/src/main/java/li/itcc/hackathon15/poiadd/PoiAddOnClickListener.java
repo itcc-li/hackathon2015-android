@@ -1,6 +1,7 @@
 package li.itcc.hackathon15.poiadd;
 
 import android.app.Activity;
+import android.location.Location;
 import android.view.View;
 
 /**
@@ -9,13 +10,24 @@ import android.view.View;
 public class PoiAddOnClickListener implements View.OnClickListener {
 
     private final Activity fParent;
+    private final LocationProvider fProvider;
 
-    public PoiAddOnClickListener(Activity parent) {
+
+    public interface LocationProvider {
+        Location getLocation();
+    }
+
+    public PoiAddOnClickListener(Activity parent, LocationProvider provider) {
         fParent = parent;
+        fProvider = provider;
     }
 
     @Override
     public void onClick(View v) {
-        PoiAddActivity.start(fParent);
+        Location location = fProvider.getLocation();
+        if (location == null) {
+            return;
+        }
+        PoiAddActivity.start(fParent, location);
     }
 }

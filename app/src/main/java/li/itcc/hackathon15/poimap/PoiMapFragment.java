@@ -35,7 +35,7 @@ import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiMapFragment extends SupportMapFragment implements GPSLocationListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class PoiMapFragment extends SupportMapFragment implements GPSLocationListener, LoaderManager.LoaderCallbacks<Cursor>,PoiAddOnClickListener.LocationProvider {
     private GoogleMap fMap;
     private int fFunction;
     private GPSDeliverer fGpsDeliverer;
@@ -43,6 +43,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     private Marker fMarker;
     private ArrayList<Marker> fMarkers = new ArrayList<Marker>();
     private View fCreateButton;
+    private Location fLocation;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,9 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
         FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
-        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
+        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
+        // we have to wait for the current location.
+        fCreateButton.setEnabled(false);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         container.removeView(v);
         frame.addView(v, params);
@@ -96,6 +99,11 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
 
     @Override
     public void onLocation(Location location) {
+        if (location == null) {
+            return;
+        }
+        fLocation = location;
+        fCreateButton.setEnabled(true);
         LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
         String title = Integer.toString(fPointCounter++);
         fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 19));
@@ -174,5 +182,10 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public Location getLocation() {
+        return fLocation;
     }
 }

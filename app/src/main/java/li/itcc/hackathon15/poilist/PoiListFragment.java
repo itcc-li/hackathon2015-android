@@ -3,6 +3,7 @@ package li.itcc.hackathon15.poilist;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,17 +24,21 @@ import android.widget.TextView;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.database.DatabaseContract;
+import li.itcc.hackathon15.gps.GPSDeliverer;
+import li.itcc.hackathon15.gps.GPSLocationListener;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private BookCursorAdapter dataAdapter;
-    private ListView listView;
-    private TextView emptyText;
-    private View createButton;
+public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,PoiAddOnClickListener.LocationProvider, GPSLocationListener {
+    private BookCursorAdapter fDataAdapter;
+    private ListView fListView;
+    private TextView fEmptyText;
+    private View fCreateButton;
+    private Location fLocation;
+    private GPSDeliverer fGpsDeliverer;
 
     public PoiListFragment() {
     }
@@ -48,13 +53,14 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Activity activity = getActivity();
         View rootView = inflater.inflate(R.layout.poi_list_fragment, container, false);
-        this.listView = (ListView)rootView.findViewById(android.R.id.list);
-        this.emptyText = (TextView)rootView.findViewById(android.R.id.empty);
-        this.createButton = rootView.findViewById(R.id.viw_add_button);
-        this.createButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
-        this.dataAdapter = new BookCursorAdapter(activity);
-        this.listView.setAdapter(dataAdapter);
-        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        fListView = (ListView)rootView.findViewById(android.R.id.list);
+        fEmptyText = (TextView)rootView.findViewById(android.R.id.empty);
+        fCreateButton = rootView.findViewById(R.id.viw_add_button);
+        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
+        fCreateButton.setVisibility(View.INVISIBLE);
+        fDataAdapter = new BookCursorAdapter(activity);
+        fListView.setAdapter(fDataAdapter);
+        fListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 onListItemClick(position, id);
@@ -74,6 +80,10 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(0, null, this);
+        fGpsDeliverer = new GPSDeliverer(getActivity(), 0L);
+        fGpsDeliverer.setListener(this);
+        fGpsDeliverer.setAutoReset(false);
+        fGpsDeliverer.startDelivery();
     }
 
     @Override
@@ -93,13 +103,13 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void updateTableVisibility() {
-        if (dataAdapter.getCount() == 0) {
-            emptyText.setVisibility(View.VISIBLE);
-            listView.setVisibility(View.GONE);
+        if (fDataAdapter.getCount() == 0) {
+            fEmptyText.setVisibility(View.VISIBLE);
+            fListView.setVisibility(View.GONE);
         }
         else {
-            emptyText.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
+            fEmptyText.setVisibility(View.GONE);
+            fListView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -118,7 +128,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        this.dataAdapter.swapCursor(data);
+        this.fDataAdapter.swapCursor(data);
         updateTableVisibility();
     }
 
@@ -132,7 +142,36 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        this.dataAdapter.swapCursor(null);
+        this.fDataAdapter.swapCursor(null);
+    }
+
+    @Override
+    public Location getLocation() {
+        return fLocation;
+    }
+
+    @Override
+    public void onLocation(Location location) {
+        if (location == null) {
+            return;
+        }
+        fLocation = location;
+        fCreateButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onLocationSensorSearching() {
+
+    }
+
+    @Override
+    public void onLocationSensorEnabled() {
+
+    }
+
+    @Override
+    public void onLocationSensorDisabled() {
+
     }
 
     private static class BookCursorAdapter extends SimpleCursorAdapter {
