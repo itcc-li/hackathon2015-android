@@ -33,10 +33,16 @@ public class HttpStreamConnection {
         sfUserAgent = "Android";
     }
 
+    private boolean fDoPost;
+
 
     public HttpStreamConnection(Context context, URL url) {
         fContext = context;
         fURL = url;
+    }
+
+    public void setDoPost(boolean doPost) {
+        fDoPost = doPost;
     }
 
     public void setReadTimeoutSecs(int readTimeout) {
@@ -67,7 +73,9 @@ public class HttpStreamConnection {
         fConnection.setReadTimeout(readTimeoutMS);
         fConnection.setConnectTimeout(30000 /* milliseconds */);
         fConnection.setDoInput(true);
-        fConnection.setDoOutput(true);
+        if (fDoPost) {
+            fConnection.setDoOutput(true);
+        }
         fConnection.setUseCaches(false);
         fConnection.setRequestProperty("HOST", url.getHost());
         fConnection.setRequestProperty("Content-Type", fContentType);
