@@ -18,7 +18,7 @@ import android.net.NetworkInfo;
 public class HttpStreamConnection {
     private URL fURL;
     private HttpURLConnection fConnection;
-    private String fContentType = "application/x-json-stream";
+    private String fContentType = "application/json";
     private static String sfUserAgent;
     private boolean fReuseSession;
     private InputStream fInputStream;
@@ -62,6 +62,7 @@ public class HttpStreamConnection {
         //SocketAddress addr = new InetSocketAddress("172.16.6.122", 8081);
         //Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
         //fConnection = (HttpURLConnection)url.openConnection(proxy);
+        //fConnection.setRequestMethod("");
         fConnection = (HttpURLConnection)url.openConnection();
         int readTimeoutMS;
         if (fReadTimeoutSecs > 0) {
@@ -80,9 +81,14 @@ public class HttpStreamConnection {
         fConnection.setRequestProperty("HOST", url.getHost());
         fConnection.setRequestProperty("Content-Type", fContentType);
         fConnection.setRequestProperty("User-Agent", sfUserAgent);
+        fConnection.setRequestProperty("Accept", "application/json"); //to set Accept headers to 'application/json'
+
         // open the output
-        OutputStream out = fConnection.getOutputStream();
-        return out;
+        if (fDoPost) {
+            OutputStream out = fConnection.getOutputStream();
+            return out;
+        }
+            return null;
     }
 
     public InputStream execute() throws Exception {
