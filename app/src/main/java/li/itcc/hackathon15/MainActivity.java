@@ -1,5 +1,6 @@
 package li.itcc.hackathon15;
 
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -12,11 +13,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.plus.Plus;
+
 import li.itcc.hackathon15.poilist.PoiListFragment;
 import li.itcc.hackathon15.poimap.PoiMapFragment;
 
 public class MainActivity extends AppCompatActivity
-        implements MainNavigationDrawerFragment.NavigationDrawerCallbacks, TitleHolder {
+        implements MainNavigationDrawerFragment.NavigationDrawerCallbacks, TitleHolder, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener
+{
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -29,12 +38,27 @@ public class MainActivity extends AppCompatActivity
     private CharSequence mTitle;
     private int mTitleId;
 
+    /* Request code used to invoke sign in user interactions. */
+    private static final int RC_SIGN_IN = 0;
+
+    /* Client used to interact with Google APIs. */
+    private GoogleApiClient mGoogleApiClient;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mMainNavigationDrawerFragment = (MainNavigationDrawerFragment)
+        // Build GoogleApiClient with access to basic profile
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Plus.API)
+                .addScope(new Scope(Scopes.PROFILE))
+                .build();
+
+                mMainNavigationDrawerFragment = (MainNavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
@@ -42,6 +66,21 @@ public class MainActivity extends AppCompatActivity
         mMainNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+    }
+
+    // see also https://developers.google.com/identity/sign-in/android/sign-in to do the sign in
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -105,6 +144,23 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void setTitleId(int titleId) {
         mTitleId = titleId;
+    }
+
+    // google authentication api
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
     }
 
     /**
