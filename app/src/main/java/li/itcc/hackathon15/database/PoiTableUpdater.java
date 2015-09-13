@@ -3,6 +3,7 @@ package li.itcc.hackathon15.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.net.Uri;
 
 import li.itcc.hackathon15.poilist.ThumbnailCache;
 import li.itcc.hackathon15.services.PoiBean;
@@ -26,6 +27,8 @@ public class PoiTableUpdater  {
         dbOpenHelper = new PoiDBOpenHelper(fContext);
         SQLiteDatabase dbWrite = dbOpenHelper.getWritableDatabase();
 
+        dbWrite.execSQL("delete from " + PoiDatabaseConstants.TABLE_POIS);
+
         String sql = "insert into " + PoiDatabaseConstants.TABLE_POIS + "(POI_NAME, POI_LONGITUDE, POI_LATITUDE) VALUES (?,?,?)";
         SQLiteStatement insert = dbWrite.compileStatement(sql);
 
@@ -38,11 +41,7 @@ public class PoiTableUpdater  {
             fCache.storeBitmap(poi.getId(), poi.getThumbnail());
         }
 
-
-        //SQLiteDatabase dbRead = dbOpenHelper.getReadableDatabase();
-
-        //String sqlread = "select * from" + PoiDatabaseConstants.TABLE_POIS;
-        //Log.d("DB", dbRead.query(""));
+        fContext.getContentResolver().notifyChange(Uri.parse("content://li.itcc.provider.hackathon15/pois"), null);
 
     }
 
