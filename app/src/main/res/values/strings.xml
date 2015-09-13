@@ -3,7 +3,7 @@
 
     <string name="title_poi_list">Book list</string>
     <string name="title_overview_map">Map</string>
-    <string name="title_section3">Selection 3</string>
+    <string name="title_section3">About</string>
 
     <string name="navigation_drawer_open">Open</string>
     <string name="navigation_drawer_close">Close</string>
@@ -17,8 +17,8 @@
     <string name="name">Name</string>
     <string name="description">Description</string>
     <string name="saving">Saving...</string>
-    <string name="saving_failed">Saving failed</string>
-    <string name="saving_done">Saving done.</string>
+    <string name="saving_failed">Save failed</string>
+    <string name="saving_done">Save done.</string>
     <string name="searching_">Searching...</string>
 
 </resources>
