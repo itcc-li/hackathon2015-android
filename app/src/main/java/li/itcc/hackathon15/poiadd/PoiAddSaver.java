@@ -46,7 +46,7 @@ public class PoiAddSaver {
                 if (fBitmap != null) {
                     // compress bitmap to jpeg in background
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    fBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+                    fBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
                     out.flush();
                     out.close();
                     param.setImage(out.toByteArray());
