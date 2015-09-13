@@ -1,6 +1,5 @@
 package li.itcc.hackathon15;
 
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -95,7 +94,7 @@ public class MainActivity extends AppCompatActivity
             newFragment = new PoiMapFragment();
         }
         else {
-            newFragment = PlaceholderFragment.newInstance(position + 1);
+            newFragment = new AboutFragment();
         }
         fragmentManager.beginTransaction()
                 .replace(R.id.container, newFragment)
