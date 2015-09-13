@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Summit Book</string>
+    <string name="app_name">Flypostr</string>
 
     <string name="title_poi_list">Book list</string>
     <string name="title_overview_map">Map</string>
@@ -8,10 +8,10 @@
     <string name="navigation_drawer_open">Open</string>
     <string name="navigation_drawer_close">Close</string>
 
-    <string name="action_example">Example</string>
+    <string name="action_example">RefreshS</string>
 
     <string name="action_settings">Settings</string>
-    <string name="txt_no_pois_available">No Summit Books available</string>
+    <string name="txt_no_pois_available">No Flypostr available</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="name">Name</string>
