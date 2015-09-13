@@ -7,7 +7,6 @@ import li.itcc.hackathon15.database.PoiTableUpdater;
 import li.itcc.hackathon15.services.PoiListBean;
 import li.itcc.hackathon15.services.PoiListQuery;
 import li.itcc.hackathon15.services.PoiServices;
-import li.itcc.hackathon15.tableutil.PoiConstants;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -35,7 +34,7 @@ public class PoiRefresher {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                PoiServices poiServices = new PoiServices(fContext, PoiConstants.URL);
+                PoiServices poiServices = new PoiServices(fContext, TitleHolder.PoiConstants.URL);
                 PoiListQuery q = new PoiListQuery();
                 PoiListBean listBean = poiServices.getPoiList(q);
                 PoiTableUpdater poiTableUpdater = new PoiTableUpdater(fContext);

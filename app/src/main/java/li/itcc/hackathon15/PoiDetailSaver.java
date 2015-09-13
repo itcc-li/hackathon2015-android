@@ -4,9 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import li.itcc.hackathon15.services.PoiDetailBean;
-import li.itcc.hackathon15.services.PoiListQuery;
 import li.itcc.hackathon15.services.PoiServices;
-import li.itcc.hackathon15.tableutil.PoiConstants;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -35,7 +33,7 @@ public class PoiDetailSaver {
         @Override
         protected Void doInBackground(PoiDetailBean... params) {
             try {
-                PoiServices poiServices = new PoiServices(fContext, PoiConstants.URL);
+                PoiServices poiServices = new PoiServices(fContext, TitleHolder.PoiConstants.URL);
                 poiServices.savePoiDetails(params[0]);
             }
             catch (Throwable th) {
