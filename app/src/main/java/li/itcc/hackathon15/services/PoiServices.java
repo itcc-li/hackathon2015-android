@@ -1,13 +1,18 @@
 package li.itcc.hackathon15.services;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
+import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.net.URLConnection;
 
 import li.itcc.hackathon15.json.HttpStreamConnection;
 import li.itcc.hackathon15.json.JSONArray;
@@ -30,15 +35,11 @@ public class PoiServices {
         URL finalUrl = new URL(Url + "/api/index.php/pois?fields=id,name,longitude,latitude,thumbnail");
         HttpStreamConnection connection = new HttpStreamConnection(Context, finalUrl);
         connection.setDoPost(false);
-        //connection.
         connection.open();
 
         InputStream in = connection.execute();
         JSONTokener tokener = new JSONTokener(in);
-
         JSONArray jsonArray = new JSONArray(tokener);
-        //JSONObject jsonObject = new JSONObject(jsonArray);
-
         PoiListBean result = new PoiListBean();
         PoiBean[] list = new PoiBean[jsonArray.length()];
 
@@ -66,7 +67,30 @@ public class PoiServices {
     }
 
     public void savePoiDetails(PoiDetailBean param) throws Exception {
+
+        String poiName = "name=" + param.getPoiName();
+        String comment = "description=" + param.getComment();
+        String longitude = "longitude=" + param.getLongitude();
+        String latitude = "latitude=" + param.getLatitude();
+
+        String pushString = "user_id=2&" + poiName + "&" + comment + "&" + longitude + "&" + latitude;
+
+        URL finalUrl = new URL(Url);
+        HttpStreamConnection connection = new HttpStreamConnection(Context, finalUrl);
+        connection.setDoPost(true);
+        connection.open();
+
+
+
+        connection.execute();
+
+        //var pushJson = "user_id=2&name=\(name)&description=\(description)&longitude=\(longitude)&latitude=\(latitude)"
+
+        Log.d("pushserver", pushString);
+
         //throw new IOException("TODO");
-        Thread.sleep(1000);
+        //Thread.sleep(1000);
     }
+
+
 }

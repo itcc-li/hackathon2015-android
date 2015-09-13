@@ -30,7 +30,12 @@
             </intent-filter>
         </activity>
 
+
         <activity android:name=".poiadd.PoiAddActivity"/>
+
+        <activity android:name=".poidetail.PoiDetailActivity"/>
+
+
 
         <provider
             android:name=".database.PoiContentProvider"

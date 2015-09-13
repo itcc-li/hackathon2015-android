@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,14 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import li.itcc.hackathon15.PoiDetailSaver;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.services.PoiDetailBean;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiAddActivity extends AppCompatActivity implements PoiDetailSaver.DetailSaveDoneListener {
+public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.PoiAddSaveDoneListener {
     private static final String KEY_LOCATION = "KEY_LOCATION";
     private View fCancelButton;
     private View fSaveButton;
@@ -55,7 +53,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiDetailSaver.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_poi_activity);
+        setContentView(R.layout.poi_add_activity);
         fLocation = getIntent().getExtras().getParcelable(KEY_LOCATION);
         fCancelButton = findViewById(R.id.btn_cancel);
         fCancelButton.setOnClickListener(new View.OnClickListener() {
@@ -95,7 +93,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiDetailSaver.
         detail.setRating(new Float(fRating.getRating()));
         detail.setLatitude(fLocation.getLatitude());
         detail.setLongitude(fLocation.getLongitude());
-        PoiDetailSaver saver = new PoiDetailSaver(getApplicationContext(), this);
+        PoiAddSaver saver = new PoiAddSaver(getApplicationContext(), this);
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show();
         fSaveButton.setEnabled(false);
         saver.save(detail, fBitmap);

@@ -30,6 +30,7 @@ import li.itcc.hackathon15.database.DatabaseContract;
 import li.itcc.hackathon15.gps.GPSDeliverer;
 import li.itcc.hackathon15.gps.GPSLocationListener;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
+import li.itcc.hackathon15.poidetail.PoiDetailActivity;
 
 
 /**
@@ -77,10 +78,10 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         return rootView;
     }
 
-
     private void onListItemClick(int position, long id) {
-        //Intent intent = BookDetailActivity.createStartIntent(getActivity(), id);
-        //startActivity(intent);
+        Cursor c = (Cursor)fDataAdapter.getItem(position);
+        long poiId = c.getLong(c.getColumnIndex(DatabaseContract.Pois.POI_ID));
+        PoiDetailActivity.start(getActivity(), poiId);
     }
 
     @Override
