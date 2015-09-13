@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 
     <application
@@ -29,7 +30,12 @@
             </intent-filter>
         </activity>
 
+
         <activity android:name=".poiadd.PoiAddActivity"/>
+
+        <activity android:name=".poidetail.PoiDetailActivity"/>
+
+
 
         <provider
             android:name=".database.PoiContentProvider"

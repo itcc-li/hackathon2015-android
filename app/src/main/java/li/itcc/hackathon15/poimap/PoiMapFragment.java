@@ -106,7 +106,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         fCreateButton.setEnabled(true);
         LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
         String title = Integer.toString(fPointCounter++);
-        fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 19));
+        fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.5f));
         if (fMarker == null) {
             fMarker = fMap.addMarker(new MarkerOptions()
                     .title(title)
