@@ -1,4 +1,4 @@
-package li.itcc.hackathon15;
+package li.itcc.hackathon15.poiadd;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,21 +6,22 @@ import android.os.AsyncTask;
 
 import java.io.ByteArrayOutputStream;
 
+import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.services.PoiDetailBean;
 import li.itcc.hackathon15.services.PoiServices;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiDetailSaver {
+public class PoiAddSaver {
     private final Context fContext;
-    private final DetailSaveDoneListener fListener;
+    private final PoiAddSaveDoneListener fListener;
 
-    public interface DetailSaveDoneListener {
+    public interface PoiAddSaveDoneListener {
         void onDetailSaved(Throwable th);
     }
 
-    public PoiDetailSaver(Context context, DetailSaveDoneListener listener) {
+    public PoiAddSaver(Context context, PoiAddSaveDoneListener listener) {
         fContext = context;
         fListener = listener;
     }
