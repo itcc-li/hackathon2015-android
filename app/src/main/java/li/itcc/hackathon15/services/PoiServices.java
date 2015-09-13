@@ -1,6 +1,7 @@
 package li.itcc.hackathon15.services;
 
 import android.content.Context;
+import android.util.Base64;
 import android.util.Log;
 
 import java.io.IOException;
@@ -26,8 +27,7 @@ public class PoiServices {
     }
 
     public PoiListBean getPoiList(PoiListQuery query) throws Exception {
-
-        URL finalUrl = new URL(Url + "/api/index.php/pois");
+        URL finalUrl = new URL(Url + "/api/index.php/pois?fields=id,name,longitude,latitude,thumbnail");
         HttpStreamConnection connection = new HttpStreamConnection(Context, finalUrl);
         connection.setDoPost(false);
         //connection.
@@ -52,13 +52,16 @@ public class PoiServices {
     }
 
     private PoiBean convertPoiBean(JSONObject jsonObject) throws Exception {
-
         PoiBean result = new PoiBean();
+        result.setId(jsonObject.getLong("id"));
         result.setLatitude(jsonObject.getDouble("latitude"));
         result.setLongitude(jsonObject.getDouble("longitude"));
         result.setPoiName(jsonObject.getString("name"));
-        //result.setLatitude(jsonObject.getDouble("latitude"));
-
+        String thumbBase64 = jsonObject.getString("thumbnail");
+        if (thumbBase64 != null && thumbBase64.length() > 0) {
+            byte[] thumbRaw = Base64.decode(thumbBase64, Base64.DEFAULT);
+            result.setThumbnail(thumbRaw);
+        }
         return  result;
     }
 

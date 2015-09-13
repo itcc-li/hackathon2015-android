@@ -18,5 +18,6 @@
     <string name="saving">Speichern...</string>
     <string name="saving_failed">Speichern fehlgeschlagen.</string>
     <string name="saving_done">Erfolgreich gespeichert.</string>
+    <string name="searching_">Suchen...</string>
 
 </resources>

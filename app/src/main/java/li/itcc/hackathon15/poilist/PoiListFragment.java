@@ -10,7 +10,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.widget.ImageView;
+import android.widget.ResourceCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +21,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.text.DecimalFormat;
 
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
@@ -32,13 +35,16 @@ import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,PoiAddOnClickListener.LocationProvider, GPSLocationListener {
-    private BookCursorAdapter fDataAdapter;
+public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, PoiAddOnClickListener.LocationProvider, GPSLocationListener {
+    private DecimalFormat FORMAT_0 = new DecimalFormat("#,##0");
+    private DecimalFormat FORMAT_1 = new DecimalFormat("#,##0.0");
+    private PoiCursorAdapter fDataAdapter;
     private ListView fListView;
     private TextView fEmptyText;
     private View fCreateButton;
     private Location fLocation;
     private GPSDeliverer fGpsDeliverer;
+    private ThumbnailCache fThumbnailCache;
 
     public PoiListFragment() {
     }
@@ -53,12 +59,13 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Activity activity = getActivity();
         View rootView = inflater.inflate(R.layout.poi_list_fragment, container, false);
-        fListView = (ListView)rootView.findViewById(android.R.id.list);
-        fEmptyText = (TextView)rootView.findViewById(android.R.id.empty);
+        fThumbnailCache = new ThumbnailCache(getContext());
+        fListView = (ListView) rootView.findViewById(android.R.id.list);
+        fEmptyText = (TextView) rootView.findViewById(android.R.id.empty);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
         fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
         fCreateButton.setVisibility(View.INVISIBLE);
-        fDataAdapter = new BookCursorAdapter(activity);
+        fDataAdapter = new PoiCursorAdapter(activity);
         fListView.setAdapter(fDataAdapter);
         fListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -106,8 +113,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         if (fDataAdapter.getCount() == 0) {
             fEmptyText.setVisibility(View.VISIBLE);
             fListView.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             fEmptyText.setVisibility(View.GONE);
             fListView.setVisibility(View.VISIBLE);
         }
@@ -136,7 +142,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof TitleHolder) {
-            ((TitleHolder)context).setTitleId(R.string.title_poi_list);
+            ((TitleHolder) context).setTitleId(R.string.title_poi_list);
         }
     }
 
@@ -157,6 +163,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         }
         fLocation = location;
         fCreateButton.setVisibility(View.VISIBLE);
+        fDataAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -174,10 +181,73 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
-    private static class BookCursorAdapter extends SimpleCursorAdapter {
+    private class PoiCursorAdapter extends ResourceCursorAdapter {
+        private final String[] fColumnNames;
+        private final int[] fColumnIndices;
+        private int POI_NAME_INDEX;
+        private int POI_LATITUDE_INDEX;
+        private int POI_LONGITUDE_INDEX;
+        private int POI_ID_INDEX;
 
-        public BookCursorAdapter(Context context) {
-            super(context, R.layout.poi_list_row, null, new String[]{DatabaseContract.Pois.POI_NAME}, new int[]{R.id.txv_poi_name}, 0);
+        public PoiCursorAdapter(Context context) {
+            super(context, R.layout.poi_list_row, null, FLAG_REGISTER_CONTENT_OBSERVER);
+            int count = 0;
+            POI_NAME_INDEX = count++;
+            POI_LATITUDE_INDEX = count++;
+            POI_LONGITUDE_INDEX = count++;
+            POI_ID_INDEX = count++;
+            // Note: must be same order
+            fColumnNames = new String[]{DatabaseContract.Pois.POI_NAME, DatabaseContract.Pois.POI_LATITUDE, DatabaseContract.Pois.POI_LONGITUDE, DatabaseContract.Pois.POI_ID};
+            fColumnIndices = new int[fColumnNames.length];
+        }
+
+
+        @Override
+        public Cursor swapCursor(Cursor c) {
+            findColumns(c);
+            return super.swapCursor(c);
+        }
+
+
+        private void findColumns(Cursor c) {
+            if (c != null) {
+                int i;
+                for (i = 0; i < fColumnIndices.length; i++) {
+                    fColumnIndices[i] = c.getColumnIndexOrThrow(fColumnNames[i]);
+                }
+            }
+        }
+
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            // name
+            TextView name = (TextView) view.findViewById(R.id.txv_poi_name);
+            name.setText(cursor.getString(fColumnIndices[POI_NAME_INDEX]));
+            // distance
+            TextView distance = (TextView) view.findViewById(R.id.txv_poi_distance);
+            if (fLocation != null) {
+                double latitude = cursor.getDouble(fColumnIndices[POI_LATITUDE_INDEX]);
+                double longitude = cursor.getDouble(fColumnIndices[POI_LONGITUDE_INDEX]);
+                Location pointLocation = new Location("");
+                pointLocation.setLatitude(latitude);
+                pointLocation.setLongitude(longitude);
+                float meters = fLocation.distanceTo(pointLocation);
+                String distanceText;
+                if (meters < 1000.0f) {
+                    distanceText = FORMAT_0.format(meters) + " m";
+                } else {
+                    float km = meters / 1000f;
+                    distanceText = FORMAT_1.format(km) + " km";
+                }
+                distance.setText(distanceText);
+            } else {
+                distance.setText(R.string.searching_);
+            }
+            // thumb
+            long id = cursor.getLong(fColumnIndices[POI_ID_INDEX]);
+            ImageView imageView = (ImageView) view.findViewById(R.id.imv_thumbnail);
+            imageView.setImageBitmap(fThumbnailCache.getBitmap(id));
         }
     }
 }
