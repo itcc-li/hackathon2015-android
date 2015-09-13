@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Hackathon 2015</string>
+    <string name="app_name">Summit Book</string>
 
-    <string name="title_section1">Selection 1</string>
-    <string name="title_section2">Selection 2</string>
+    <string name="title_poi_list">Book list</string>
+    <string name="title_overview_map">Map</string>
     <string name="title_section3">Selection 3</string>
 
     <string name="navigation_drawer_open">Open</string>
@@ -11,4 +11,13 @@
     <string name="action_example">Example</string>
 
     <string name="action_settings">Settings</string>
+    <string name="txt_no_pois_available">No Summit Books available</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="saving">Saving...</string>
+    <string name="saving_failed">Saving failed</string>
+    <string name="saving_done">Saving done.</string>
+
 </resources>

@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Hackathon 2015</string>
+    <string name="app_name">Summit Book</string>
 
-    <string name="title_section1">Auswahl 1</string>
-    <string name="title_section2">Auswahl 2</string>
+    <string name="title_poi_list">Liste</string>
+    <string name="title_overview_map">Karte</string>
     <string name="title_section3">Auswahl 3</string>
 
     <string name="navigation_drawer_open">Seitenmenu öffnen</string>
@@ -11,4 +11,12 @@
     <string name="action_example">Beispiel</string>
 
     <string name="action_settings">Einstellungen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
+    <string name="name">Name</string>
+    <string name="description">Beschreibung</string>
+    <string name="saving">Speichern...</string>
+    <string name="saving_failed">Speichern fehlgeschlagen.</string>
+    <string name="saving_done">Erfolgreich gespeichert.</string>
+
 </resources>
