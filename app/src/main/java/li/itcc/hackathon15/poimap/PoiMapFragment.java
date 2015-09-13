@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
@@ -32,6 +33,7 @@ import li.itcc.hackathon15.database.DatabaseContract;
 import li.itcc.hackathon15.gps.GPSDeliverer;
 import li.itcc.hackathon15.gps.GPSLocationListener;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
+import li.itcc.hackathon15.poidetail.PoiDetailActivity;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -42,7 +44,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     private GPSDeliverer fGpsDeliverer;
     private int fPointCounter;
     private Marker fMarker;
-    private ArrayList<Marker> fMarkers = new ArrayList<Marker>();
+    private HashMap<Marker, Long> fMarkers = new HashMap<>();
     private View fCreateButton;
     private Location fLocation;
 
@@ -58,10 +60,10 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         // trick: we have to add a floating button so we add an extra layer
         container.removeView(v);
         fMap = getMap();
-        fMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        fMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker) {
-                return onClick(marker);
+            public void onInfoWindowClick(Marker marker) {
+                onClick(marker);
             }
         });
         View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
@@ -77,7 +79,10 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     }
 
     private boolean onClick(Marker marker) {
-
+        Long id = fMarkers.get(marker);
+        if (id != null) {
+            PoiDetailActivity.start(getActivity(), id.longValue());
+        }
         return true;
     }
 
@@ -117,7 +122,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         fLocation = location;
         fCreateButton.setEnabled(true);
         LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
-        String title = Integer.toString(fPointCounter++);
+        String title = getResources().getString(R.string.my_location);
         fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.5f));
         if (fMarker == null) {
             fMarker = fMap.addMarker(new MarkerOptions()
@@ -169,23 +174,25 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         int longitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LONGITUDE);
         int latitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LATITUDE);
         int nameCol = data.getColumnIndex(DatabaseContract.Pois.POI_NAME);
+        int idCol = data.getColumnIndex(DatabaseContract.Pois.POI_ID);
         if (data.moveToFirst()) {
             do {
                 double longitude = data.getDouble(longitudeCol);
                 double latitude = data.getDouble(latitudeCol);
                 String name = data.getString(nameCol);
+                long id = data.getLong(idCol);
                 LatLng loc = new LatLng(latitude, longitude);
                 Marker marker = fMap.addMarker(new MarkerOptions()
                         .title(name)
                         .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.poi_pin)));
-                fMarkers.add(marker);
+                fMarkers.put(marker, new Long(id));
             } while (data.moveToNext());
 
         }
     }
 
     private void clearAllMarkers() {
-        for (Marker marker: fMarkers) {
+        for (Marker marker: fMarkers.keySet()) {
             marker.remove();
         }
         fMarkers.clear();
@@ -200,4 +207,6 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     public Location getLocation() {
         return fLocation;
     }
+
+
 }

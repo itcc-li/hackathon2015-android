@@ -20,5 +20,6 @@
     <string name="saving_done">Erfolgreich gespeichert.</string>
     <string name="searching_">Suchen...</string>
     <string name="delete_warning">In dieser Version kann der Eintrag nicht geloescht werden</string>
+    <string name="my_location">Meine Position</string>
 
 </resources>
