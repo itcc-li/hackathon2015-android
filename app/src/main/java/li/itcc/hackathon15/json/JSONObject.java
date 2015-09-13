@@ -615,6 +615,9 @@ public class JSONObject {
      */
     public String getString(String key) throws JSONException {
         Object object = get(key);
+        if (object == null || object == JSONObject.NULL) {
+            return null;
+        }
         if (object instanceof String) {
             return (String)object;
         }

@@ -23,9 +23,31 @@ public class PoiDetailServices {
         this.Url = url;
     }
 
-    public PoiFullDetailBean loadFullDetails(long l) throws Exception {
-        Thread.sleep(1000);
-        PoiFullDetailBean result = new PoiFullDetailBean();
+    public PoiFullDetailBean loadFullDetails(long id) throws Exception {
+        URL finalUrl = new URL(Url + "/api/index.php/pois/"+id+"?fields=name,description,image,longitude,latitude,rating");
+        HttpStreamConnection connection = new HttpStreamConnection(Context, finalUrl);
+        connection.setDoPost(false);
+        connection.open();
+        InputStream in = connection.execute();
+        JSONTokener tokener = new JSONTokener(in);
+        JSONObject element = new JSONObject(tokener);
+        PoiFullDetailBean result = convertPoiFullBean(element);
         return result;
     }
+
+    private PoiFullDetailBean convertPoiFullBean(JSONObject jsonObject) throws Exception {
+        PoiFullDetailBean result = new PoiFullDetailBean();
+        result.setLatitude(jsonObject.getDouble("latitude"));
+        result.setLongitude(jsonObject.getDouble("longitude"));
+        result.setPoiName(jsonObject.getString("name"));
+        result.setDescription(jsonObject.getString("description"));
+        result.setRating((float) jsonObject.getDouble("rating"));
+        String image64 = jsonObject.getString("image");
+        if (image64 != null && image64.length() > 0) {
+            byte[] img = Base64.decode(image64, Base64.NO_WRAP);
+            result.setImage(img);
+        }
+        return  result;
+    }
+
 }

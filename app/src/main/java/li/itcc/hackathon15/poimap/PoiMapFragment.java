@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -57,6 +58,12 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         // trick: we have to add a floating button so we add an extra layer
         container.removeView(v);
         fMap = getMap();
+        fMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return onClick(marker);
+            }
+        });
         View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
         FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
@@ -67,6 +74,11 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         container.removeView(v);
         frame.addView(v, params);
         return rootView;
+    }
+
+    private boolean onClick(Marker marker) {
+
+        return true;
     }
 
     @Override
@@ -110,7 +122,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         if (fMarker == null) {
             fMarker = fMap.addMarker(new MarkerOptions()
                     .title(title)
-                    .position(loc));
+                    .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.my_pin)));
         }
         else {
             fMarker.setPosition(loc);
@@ -165,7 +177,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
                 LatLng loc = new LatLng(latitude, longitude);
                 Marker marker = fMap.addMarker(new MarkerOptions()
                         .title(name)
-                        .position(loc));
+                        .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.poi_pin)));
                 fMarkers.add(marker);
             } while (data.moveToNext());
 
