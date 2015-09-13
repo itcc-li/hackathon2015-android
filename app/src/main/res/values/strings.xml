@@ -17,7 +17,7 @@
     <string name="name">Name</string>
     <string name="description">Description</string>
     <string name="saving">Saving...</string>
-    <string name="saving_failed">Saving failed</string>
-    <string name="saving_done">Saving done.</string>
+    <string name="saving_failed">Save failed</string>
+    <string name="saving_done">Save completed</string>
 
 </resources>
