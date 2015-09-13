@@ -29,18 +29,18 @@ public class PoiTableUpdater  {
 
         dbWrite.execSQL("delete from " + PoiDatabaseConstants.TABLE_POIS);
 
-        String sql = "insert into " + PoiDatabaseConstants.TABLE_POIS + "(POI_NAME, POI_LONGITUDE, POI_LATITUDE) VALUES (?,?,?)";
+        String sql = "insert into " + PoiDatabaseConstants.TABLE_POIS + "(" + DatabaseContract.Pois.POI_ID + ",POI_NAME, POI_LONGITUDE, POI_LATITUDE) VALUES (?,?,?,?)";
         SQLiteStatement insert = dbWrite.compileStatement(sql);
 
         for (int i = 0; i < listBean.getAllPolis().length; i++) {
             PoiBean poi = listBean.getAllPolis()[i];
-            insert.bindString(1, poi.getPoiName());
-            insert.bindDouble(2, poi.getLongitude());
-            insert.bindDouble(3, poi.getLatitude());
+            insert.bindLong(1, poi.getId());
+            insert.bindString(2, poi.getPoiName());
+            insert.bindDouble(3, poi.getLongitude());
+            insert.bindDouble(4, poi.getLatitude());
             insert.execute();
             fCache.storeBitmap(poi.getId(), poi.getThumbnail());
         }
-
         fContext.getContentResolver().notifyChange(Uri.parse("content://li.itcc.provider.hackathon15/pois"), null);
 
     }

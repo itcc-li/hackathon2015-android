@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import li.itcc.hackathon15.R;
+import li.itcc.hackathon15.ToastResultListener;
 import li.itcc.hackathon15.services.PoiDetailBean;
 
 /**
@@ -108,7 +109,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     public void onDetailSaved(Throwable th) {
         if (th != null) {
             fSaveButton.setEnabled(true);
-            Toast.makeText(this, R.string.saving_failed, Toast.LENGTH_LONG).show();
+            new ToastResultListener(this).onRefreshDone(th);
         } else {
             Toast.makeText(this, R.string.saving_done, Toast.LENGTH_SHORT).show();
             finish();
@@ -150,8 +151,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
             if (fNextPhotoUri != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fNextPhotoUri);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PICTURE);
-            }
-            else {
+            } else {
                 // can not create file
             }
         }
@@ -162,8 +162,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PICTURE && resultCode == RESULT_OK) {
             cropPicture();
-        }
-        else if (requestCode == REQUEST_CROP_PICTURE && resultCode == RESULT_OK) {
+        } else if (requestCode == REQUEST_CROP_PICTURE && resultCode == RESULT_OK) {
             if (data != null) {
                 Bundle extras = data.getExtras();
                 if (extras != null) {
@@ -183,8 +182,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         if (size == 0) {
             Toast.makeText(this, "Can not find image crop app", Toast.LENGTH_SHORT).show();
             return;
-        }
-        else {
+        } else {
             intent.setData(fNextPhotoUri);
             intent.putExtra("outputX", 1080);
             intent.putExtra("outputY", 1080);

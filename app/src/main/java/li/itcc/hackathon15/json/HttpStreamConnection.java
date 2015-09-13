@@ -18,16 +18,10 @@ import android.net.NetworkInfo;
 public class HttpStreamConnection {
     private URL fURL;
     private HttpURLConnection fConnection;
-    private String fContentType = "application/json";
     private static String sfUserAgent;
-    private boolean fReuseSession;
     private InputStream fInputStream;
     private Context fContext;
     private int fReadTimeoutSecs;
-    private String fDeviceId;
-    private String fInitVectorHex;
-    private String fCipheredPasswordHex;
-
 
     static {
         sfUserAgent = "Android";
@@ -47,10 +41,6 @@ public class HttpStreamConnection {
 
     public void setReadTimeoutSecs(int readTimeout) {
         fReadTimeoutSecs = readTimeout;
-    }
-
-    public void setContentType(String contentType) {
-        fContentType = contentType;
     }
 
     public OutputStream open() throws Exception {
@@ -76,10 +66,11 @@ public class HttpStreamConnection {
         fConnection.setDoInput(true);
         if (fDoPost) {
             fConnection.setDoOutput(true);
+            fConnection.setRequestMethod("POST");
         }
+        fConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         fConnection.setUseCaches(false);
         fConnection.setRequestProperty("HOST", url.getHost());
-        fConnection.setRequestProperty("Content-Type", fContentType);
         fConnection.setRequestProperty("User-Agent", sfUserAgent);
         fConnection.setRequestProperty("Accept", "application/json"); //to set Accept headers to 'application/json'
 
@@ -94,7 +85,7 @@ public class HttpStreamConnection {
     public InputStream execute() throws Exception {
         fConnection.connect();
         int code = fConnection.getResponseCode();
-        if (code != 200) {
+        if (code < 200 || code >= 300) {
             throw new IOException("Connect faild with code " + code);
         }
         fInputStream = fConnection.getInputStream();
