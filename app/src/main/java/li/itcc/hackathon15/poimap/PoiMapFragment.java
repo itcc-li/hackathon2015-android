@@ -6,14 +6,13 @@ import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
-import android.support.v4.app.LoaderManager;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,7 +23,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import li.itcc.hackathon15.R;
@@ -71,7 +69,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
         fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
         // we have to wait for the current location.
-        fCreateButton.setEnabled(false);
+        fCreateButton.setVisibility(View.VISIBLE);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         container.removeView(v);
         frame.addView(v, params);
@@ -119,8 +117,11 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         if (location == null) {
             return;
         }
+        if (!isAdded()) {
+            return;
+        }
         fLocation = location;
-        fCreateButton.setEnabled(true);
+        fCreateButton.setVisibility(View.VISIBLE);
         LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
         String title = getResources().getString(R.string.my_location);
         fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.5f));
