@@ -1,20 +1,13 @@
 package li.itcc.hackathon15.services;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
-import android.net.Uri;
 import android.util.Base64;
-import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import li.itcc.hackathon15.json.HttpStreamConnection;
@@ -83,11 +76,11 @@ public class PoiServices {
         fw.print("longitude", Double.toString(param.getLongitude()));
         fw.print("latitude", Double.toString(param.getLatitude()));
         //
-        //Float ratingFloat = param.getRating();
-        //if (ratingFloat != null) {
-        //    pw.print("rating=");
-        //    pw.println(ratingFloat.toString());
-        //}
+        Float ratingFloat = param.getRating();
+        if (ratingFloat != null) {
+            pw.print("rating=");
+            pw.println(ratingFloat.toString());
+        }
         //
         byte[] image = param.getImage();
         if (image != null) {

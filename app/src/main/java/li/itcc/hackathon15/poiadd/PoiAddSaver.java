@@ -52,7 +52,7 @@ public class PoiAddSaver {
                     param.setImage(out.toByteArray());
                 }
                 PoiServices poiServices = new PoiServices(fContext, TitleHolder.PoiConstants.URL);
-                poiServices.savePoiDetails(params[0]);
+                poiServices.savePoiDetails(param);
             }
             catch (Throwable th) {
                 fException = th;
