@@ -16,7 +16,7 @@ public class ToastResultListener implements PoiRefresher.RefreshDoneListener {
     @Override
     public void onRefreshDone(Throwable th) {
         if (th == null) {
-            Toast.makeText(fContext, "Done", Toast.LENGTH_SHORT).show();
+            Toast.makeText(fContext, R.string.done, Toast.LENGTH_SHORT).show();
         }
         else {
             Toast.makeText(fContext, "Exception " + th.getClass().getName() + " " + th.getMessage(), Toast.LENGTH_LONG).show();

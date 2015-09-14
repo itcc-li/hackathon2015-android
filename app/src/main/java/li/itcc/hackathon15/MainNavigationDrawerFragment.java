@@ -247,8 +247,8 @@ public class MainNavigationDrawerFragment extends Fragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Execute refresh", Toast.LENGTH_SHORT).show();
+        if (item.getItemId() == R.id.action_refresh) {
+            Toast.makeText(getContext(), R.string.refreshing_, Toast.LENGTH_SHORT).show();
             new PoiRefresher(getContext(), new ToastResultListener(getContext())).refresh();
             return true;
         }
