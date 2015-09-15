@@ -50,6 +50,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     private View fOpenGaleryButton;
     private File fLocalImageFileOriginal;
     private File fLocalImageFileCropped;
+    private View fClearPictureButton;
 
     public static void start(Activity parent, Location location) {
         Intent i = new Intent(parent, PoiAddActivity.class);
@@ -98,10 +99,23 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
                 onOpenGaleryClick(v);
             }
         });
+        fClearPictureButton = findViewById(R.id.viw_clear_picture_button);
+        fClearPictureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClearPictureClick(v);
+            }
+        });
         fName = (EditText)findViewById(R.id.etx_name);
         fComment = (EditText)findViewById(R.id.etx_comment);
         fRating = (RatingBar)findViewById(R.id.rbr_rating);
         fImage = (ImageView)findViewById(R.id.img_image);
+    }
+
+    private void onClearPictureClick(View v) {
+        fLocalImageFileOriginal.delete();
+        fLocalImageFileCropped.delete();
+        updateImagePreview();
     }
 
     @Override
@@ -197,13 +211,22 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     }
 
     private void updateImagePreview() {
+        int addPictureButtonVisibility;
+        int removePictureButtonVisibility;
         if (fLocalImageFileCropped.exists() && fLocalImageFileCropped.canRead()) {
             Bitmap bmp = BitmapFactory.decodeFile(fLocalImageFileCropped.getAbsolutePath());
             fImage.setImageBitmap(bmp);
+            addPictureButtonVisibility = View.GONE;
+            removePictureButtonVisibility = View.VISIBLE;
         }
         else {
             fImage.setImageBitmap(null);
+            addPictureButtonVisibility = View.VISIBLE;
+            removePictureButtonVisibility = View.GONE;
         }
+        fTakePictureButton.setVisibility(addPictureButtonVisibility);
+        fOpenGaleryButton.setVisibility(addPictureButtonVisibility);
+        fClearPictureButton.setVisibility(removePictureButtonVisibility);
     }
 
     public void copyToLocalFile(Uri uri) throws IOException {

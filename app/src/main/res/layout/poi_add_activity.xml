@@ -17,6 +17,7 @@
 
             <li.itcc.hackathon15.guiutil.SquareImageView
                 android:id="@+id/img_image"
+                android:layout_marginTop="10dp"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
                 android:layout_gravity="center"
@@ -103,6 +104,18 @@
             android:src="@drawable/ic_collections_white_24dp"
             app:layout_anchor="@id/img_image"
             app:layout_anchorGravity="bottom|left|end" />
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/viw_clear_picture_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:clickable="true"
+            android:src="@drawable/ic_clear_white_24dp"
+            app:layout_anchor="@id/img_image"
+            app:layout_anchorGravity="bottom|right|end" />
+
 
 
     </android.support.design.widget.CoordinatorLayout>
