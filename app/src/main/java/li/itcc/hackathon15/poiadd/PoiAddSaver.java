@@ -6,7 +6,7 @@ import java.io.RandomAccessFile;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import li.itcc.hackathon15.TitleHolder;
+import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.services.PoiDetailBean;
 import li.itcc.hackathon15.services.PoiServices;
 
@@ -53,7 +53,7 @@ public class PoiAddSaver {
                         r = null;
                         param.setImage(dest);
                     }
-                    PoiServices poiServices = new PoiServices(fContext, TitleHolder.PoiConstants.URL);
+                    PoiServices poiServices = new PoiServices(fContext, PoiConstants.URL);
                     poiServices.savePoiDetails(param);
                 }
                 finally {

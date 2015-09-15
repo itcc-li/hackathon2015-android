@@ -1,65 +1,57 @@
 package li.itcc.hackathon15.services;
 
-import android.content.Context;
-import android.util.Base64;
-
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import android.content.Context;
+import android.util.Base64;
+
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
+
 import li.itcc.hackathon15.json.HttpStreamConnection;
-import li.itcc.hackathon15.json.JSONArray;
-import li.itcc.hackathon15.json.JSONObject;
-import li.itcc.hackathon15.json.JSONTokener;
+import li.itcc.hackaton15.backend.poiApi.PoiApi;
+import li.itcc.hackaton15.backend.poiApi.model.PoiOverviewListBean;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
 public class PoiServices {
+    private static PoiApi sfPoiApiService = null;
     private final String Url;
     private final Context Context;
 
     public PoiServices(Context context, String url) {
         this.Context = context;
         this.Url = url;
+
+        if(sfPoiApiService == null) {
+            PoiApi.Builder builder = new PoiApi.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null)
+                    // options for running against local devappserver
+                    // - 10.0.2.2 is localhost's IP address in Android emulator
+                    // - turn off compression when running against local devappserver
+                    .setRootUrl(url + "/_ah/api/")
+                    .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                        @Override
+                        public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                            abstractGoogleClientRequest.setDisableGZipContent(true);
+                        }
+                    });
+            // end options for devappserver
+
+            sfPoiApiService = builder.build();
+        }
     }
 
-    public PoiListBean getPoiList(PoiListQuery query) throws Exception {
-        URL finalUrl = new URL(Url + "/api/index.php/pois?fields=id,name,longitude,latitude,thumbnail");
-        HttpStreamConnection connection = new HttpStreamConnection(Context, finalUrl);
-        connection.setDoPost(false);
-        connection.open();
-
-        InputStream in = connection.execute();
-        JSONTokener tokener = new JSONTokener(in);
-        JSONArray jsonArray = new JSONArray(tokener);
-        PoiListBean result = new PoiListBean();
-        PoiBean[] list = new PoiBean[jsonArray.length()];
-
-        for (int i = 0; i < list.length; i++) {
-            list[i] = convertPoiBean(jsonArray.getJSONObject(i));
-
-        }
-
-        result.setAllPolis(list);
-        return result;
-    }
-
-    private PoiBean convertPoiBean(JSONObject jsonObject) throws Exception {
-        PoiBean result = new PoiBean();
-        result.setId(jsonObject.getLong("id"));
-        result.setLatitude(jsonObject.getDouble("latitude"));
-        result.setLongitude(jsonObject.getDouble("longitude"));
-        result.setPoiName(jsonObject.getString("name"));
-        String thumbBase64 = jsonObject.getString("thumbnail");
-        if (thumbBase64 != null && thumbBase64.length() > 0) {
-            byte[] thumbRaw = Base64.decode(thumbBase64, Base64.NO_WRAP);
-            result.setThumbnail(thumbRaw);
-        }
-        return  result;
+    public PoiOverviewListBean getPoiList(PoiOverviewQuery query) throws Exception {
+        return sfPoiApiService.getPoiOverviewList(query.getLatitude(), query.getLongitude(), query.getMaxCount()).execute();
     }
 
     public void savePoiDetails(PoiDetailBean param) throws Exception {

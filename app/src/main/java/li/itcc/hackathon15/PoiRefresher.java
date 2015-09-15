@@ -4,9 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import li.itcc.hackathon15.database.PoiTableUpdater;
-import li.itcc.hackathon15.services.PoiListBean;
-import li.itcc.hackathon15.services.PoiListQuery;
+import li.itcc.hackathon15.services.PoiOverviewQuery;
 import li.itcc.hackathon15.services.PoiServices;
+import li.itcc.hackaton15.backend.poiApi.model.PoiOverviewListBean;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -34,9 +34,9 @@ public class PoiRefresher {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                PoiServices poiServices = new PoiServices(fContext, TitleHolder.PoiConstants.URL);
-                PoiListQuery q = new PoiListQuery();
-                PoiListBean listBean = poiServices.getPoiList(q);
+                PoiServices poiServices = new PoiServices(fContext, PoiConstants.URL);
+                PoiOverviewQuery q = new PoiOverviewQuery();
+                PoiOverviewListBean listBean = poiServices.getPoiList(q);
                 PoiTableUpdater poiTableUpdater = new PoiTableUpdater(fContext);
                 poiTableUpdater.updatePoiTable(listBean);
             }

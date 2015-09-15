@@ -9,6 +9,7 @@ package li.itcc.hackaton15.backend;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.google.api.server.spi.config.Named;
 
 /**
  * An endpoint class we are exposing
@@ -28,7 +29,7 @@ public class PoiEndpoint {
      * A simple endpoint method that takes a name and says Hi back
      */
     @ApiMethod(name = "getPoiOverviewList")
-    public PoiOverviewListBean getPoiOverviewList(PoiOverviewQueryBean query) {
+    public PoiOverviewListBean getPoiOverviewList(@Named("latitude") double latitude, @Named("longitude") double longitude, @Named("maxCount") int maxCount) {
         PoiOverviewListBean response = new PoiOverviewListBean();
         PoiOverviewBean[] list = new PoiOverviewBean[3];
         list[0] = createBean("Städtle Vaduz", 47.140937, 9.520890, 3.5f, 1L);

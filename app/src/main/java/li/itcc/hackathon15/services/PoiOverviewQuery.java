@@ -1,9 +1,9 @@
-package li.itcc.hackaton15.backend;
+package li.itcc.hackathon15.services;
 
 /**
  * The object model for the data we are sending through endpoints
  */
-public class PoiOverviewQueryBean {
+public class PoiOverviewQuery {
     /**
      * Current user location
      */

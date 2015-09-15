@@ -10,7 +10,15 @@ public class PoiOverviewBean {
     private String poiName;
     private String poiDescription;
     private float rating;
-    private byte[] thumbnail_135;
+    private String thumbnail;
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
 
     public long getPoiId() {
         return poiId;
@@ -60,13 +68,6 @@ public class PoiOverviewBean {
         this.rating = rating;
     }
 
-    public byte[] getThumbnail_135() {
-        return thumbnail_135;
-    }
-
-    public void setThumbnail_135(byte[] thumbnail_135) {
-        this.thumbnail_135 = thumbnail_135;
-    }
 
 
 

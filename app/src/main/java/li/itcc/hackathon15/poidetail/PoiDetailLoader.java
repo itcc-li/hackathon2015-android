@@ -1,16 +1,11 @@
 package li.itcc.hackathon15.poidetail;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
-import java.io.ByteArrayOutputStream;
-
-import li.itcc.hackathon15.TitleHolder;
-import li.itcc.hackathon15.services.PoiDetailBean;
+import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.services.PoiDetailServices;
 import li.itcc.hackathon15.services.PoiFullDetailBean;
-import li.itcc.hackathon15.services.PoiServices;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -39,7 +34,7 @@ public class PoiDetailLoader {
         protected PoiFullDetailBean doInBackground(Long... params) {
             try {
                 Long param = params[0];
-                PoiDetailServices poiServices = new PoiDetailServices(fContext, TitleHolder.PoiConstants.URL);
+                PoiDetailServices poiServices = new PoiDetailServices(fContext, PoiConstants.URL);
                 return poiServices.loadFullDetails(params[0].longValue());
             }
             catch (Throwable th) {
