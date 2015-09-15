@@ -1,6 +1,7 @@
 package li.itcc.hackathon15.poiadd;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +11,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -187,10 +189,10 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
                 }
             }
             catch (IOException x) {
+                fLocalImageFileOriginal.delete();
+                fLocalImageFileOriginal.delete();
+                updateImagePreview();
             }
-        }
-        if (resultCode != RESULT_OK) {
-            // TODO: error handling
         }
     }
 
@@ -205,24 +207,65 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     }
 
     public void copyToLocalFile(Uri uri) throws IOException {
-        if( uri == null ) {
-            fLocalImageFileOriginal.delete();
-            return;
+        boolean done = false;
+        if( uri != null ) {
+            // create local file
+            if (Uri.fromFile(fLocalImageFileOriginal).equals(uri)) {
+                return;
+            }
+            InputStream in = getContentResolver().openInputStream(uri);
+            long totalSize = 0;
+            if (in != null) {
+                totalSize = copyToOutput(in);
+            }
+            if (totalSize == 0L) {
+                // this might happen on older devices
+                // try to retrieve the image from the media store first
+                // this will only work for images selected from gallery
+                String[] projection = {MediaStore.Images.Media.DATA};
+                Cursor cursor = managedQuery(uri, projection, null, null, null);
+                if (cursor != null) {
+                    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    cursor.moveToFirst();
+                    String path = cursor.getString(column_index);
+                    if (path != null) {
+                        InputStream altIn = new FileInputStream(path);
+                        long length = copyToOutput(altIn);
+                        if (length > 0L) {
+                            done = true;
+                        }
+                    }
+                }
+            }
+            else {
+                done = true;
+            }
         }
-        // create local file
-        InputStream in = getContentResolver().openInputStream(uri);
+        if (!done) {
+            fLocalImageFileOriginal.delete();
+        }
+    }
+
+    private long copyToOutput(InputStream in) throws IOException {
         File outFile = fLocalImageFileOriginal;
         FileOutputStream out = new FileOutputStream(outFile);
         byte[] buffer = new byte[10000];
         int n;
+        long totalSize = 0;
         while ((n = in.read(buffer)) > 0) {
             out.write(buffer, 0, n);
+            totalSize += n;
         }
         in.close();
         out.close();
+        return totalSize;
     }
 
     private void cropPicture() throws IOException {
+        if (!fLocalImageFileOriginal.exists()) {
+            fLocalImageFileCropped.delete();
+            return;
+        }
         Intent intent = new Intent("com.android.camera.action.CROP");
         intent.setType("image/*");
         List<ResolveInfo> list = getPackageManager().queryIntentActivities(intent, 0);
