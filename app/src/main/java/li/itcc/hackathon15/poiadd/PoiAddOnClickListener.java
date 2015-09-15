@@ -25,9 +25,6 @@ public class PoiAddOnClickListener implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         Location location = fProvider.getLocation();
-        if (location == null) {
-            return;
-        }
         PoiAddActivity.start(fParent, location);
     }
 }

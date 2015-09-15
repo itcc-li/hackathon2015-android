@@ -1,5 +1,7 @@
 package li.itcc.hackathon15.poilist;
 
+import java.text.DecimalFormat;
+
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,8 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.widget.ImageView;
-import android.widget.ResourceCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,10 +19,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
-
-import java.text.DecimalFormat;
 
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
@@ -65,7 +65,6 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         fEmptyText = (TextView) rootView.findViewById(android.R.id.empty);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
         fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
-        fCreateButton.setVisibility(View.INVISIBLE);
         fDataAdapter = new PoiCursorAdapter(activity);
         fListView.setAdapter(fDataAdapter);
         fListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -163,7 +162,6 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             return;
         }
         fLocation = location;
-        fCreateButton.setVisibility(View.VISIBLE);
         fDataAdapter.notifyDataSetChanged();
     }
 

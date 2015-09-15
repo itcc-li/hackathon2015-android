@@ -1,5 +1,13 @@
 package li.itcc.hackathon15.poiadd;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -17,12 +25,6 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.ToastResultListener;
 import li.itcc.hackathon15.services.PoiDetailBean;
@@ -32,6 +34,12 @@ import li.itcc.hackathon15.services.PoiDetailBean;
  */
 public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.PoiAddSaveDoneListener {
     private static final String KEY_LOCATION = "KEY_LOCATION";
+    private static final int REQUEST_TAKE_PICTURE = 1;
+    private static final int REQUEST_GET_GALARY_PICTURE = 2;
+    private static final int REQUEST_CROP_PICTURE = 3;
+    private static final int RESULT_IO_EXCEPTION = RESULT_FIRST_USER + 1;
+
+
     private View fCancelButton;
     private View fSaveButton;
     private EditText fName;
@@ -40,8 +48,9 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     private Location fLocation;
     private View fTakePictureButton;
     private ImageView fImage;
+    private View fOpenGaleryButton;
+    // persistent varialbles
     private Uri fNextPhotoUri;
-    private File fNextPhotoFile;
     private Bitmap fBitmap;
 
     public static void start(Activity parent, Location location) {
@@ -77,10 +86,21 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
                 onTakePictureClick(v);
             }
         });
-        fName = (EditText) findViewById(R.id.etx_name);
-        fComment = (EditText) findViewById(R.id.etx_comment);
-        fRating = (RatingBar) findViewById(R.id.rbr_rating);
-        fImage = (ImageView) findViewById(R.id.img_image);
+        fOpenGaleryButton = findViewById(R.id.viw_open_galery_button);
+        fOpenGaleryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onOpenGaleryClick(v);
+            }
+        });
+        fName = (EditText)findViewById(R.id.etx_name);
+        fComment = (EditText)findViewById(R.id.etx_comment);
+        fRating = (RatingBar)findViewById(R.id.rbr_rating);
+        fImage = (ImageView)findViewById(R.id.img_image);
+    }
+
+    private void onOpenGaleryClick(View v) {
+        getPictureFromGalary();
     }
 
     private void onTakePictureClick(View v) {
@@ -92,8 +112,10 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         detail.setPoiName(fName.getText().toString());
         detail.setComment(fComment.getText().toString());
         detail.setRating(new Float(fRating.getRating()));
-        detail.setLatitude(fLocation.getLatitude());
-        detail.setLongitude(fLocation.getLongitude());
+        if (fLocation != null) {
+            detail.setLatitude(fLocation.getLatitude());
+            detail.setLongitude(fLocation.getLongitude());
+        }
         PoiAddSaver saver = new PoiAddSaver(getApplicationContext(), this);
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show();
         fSaveButton.setEnabled(false);
@@ -110,71 +132,115 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         if (th != null) {
             fSaveButton.setEnabled(true);
             new ToastResultListener(this).onRefreshDone(th);
-        } else {
+        }
+        else {
             Toast.makeText(this, R.string.saving_done, Toast.LENGTH_SHORT).show();
             finish();
         }
     }
 
-    // taking picture
+    // getting a picture
 
-    private void createNextFotoFile() {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        try {
-            fNextPhotoFile = File.createTempFile(
-                    imageFileName,  /* prefix */
-                    ".jpg",         /* suffix */
-                    storageDir      /* directory */
-            );
-            fNextPhotoUri = Uri.fromFile(fNextPhotoFile);
-        } catch (IOException e) {
-            fNextPhotoFile = null;
-            fNextPhotoUri = null;
-        }
-
+    private void getPictureFromGalary() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_GET_GALARY_PICTURE);
     }
-
-    static final int REQUEST_TAKE_PICTURE = 1;
-    static final int REQUEST_CROP_PICTURE = 2;
 
     private void takePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            // Continue only if the File was successfully created
-            createNextFotoFile();
-            if (fNextPhotoUri != null) {
+            // Create the file uri where the photo should go
+            try {
+                fNextPhotoUri = createTempImageUri();
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fNextPhotoUri);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PICTURE);
-            } else {
-                // can not create file
+            }
+            catch (Exception x) {
+                onActivityResult(REQUEST_TAKE_PICTURE, RESULT_IO_EXCEPTION, null);
             }
         }
+    }
+
+    private File createTempImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File nextPhotoFile = File.createTempFile(imageFileName, ".jpg", storageDir);
+        return nextPhotoFile;
+    }
+
+
+    private Uri createTempImageUri() throws IOException {
+        File tempFile = createTempImageFile();
+        return Uri.fromFile(tempFile);
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_TAKE_PICTURE && resultCode == RESULT_OK) {
-            cropPicture();
-        } else if (requestCode == REQUEST_CROP_PICTURE && resultCode == RESULT_OK) {
-            if (data != null) {
-                Bundle extras = data.getExtras();
-                if (extras != null) {
-                    Bitmap bitmap = extras.getParcelable("data");
-                    fBitmap = bitmap;
-                    fImage.setImageBitmap(bitmap);
+        if (resultCode == RESULT_OK) {
+            try {
+                if (requestCode == REQUEST_GET_GALARY_PICTURE) {
+                    Uri selectedImageUri = data.getData();
+                    Uri localUri = copyToLocalFile(selectedImageUri);
+                    cropPicture(localUri);
+                }
+                else if (requestCode == REQUEST_TAKE_PICTURE) {
+                    Uri selectedImageUri = fNextPhotoUri;
+                    cropPicture(selectedImageUri);
+                }
+                else if (requestCode == REQUEST_CROP_PICTURE) {
+                    if (data != null) {
+                        Bundle extras = data.getExtras();
+                        if (extras != null) {
+                            Bitmap bitmap = extras.getParcelable("data");
+                            fBitmap = bitmap;
+                            fImage.setImageBitmap(bitmap);
+                        }
+                    }
                 }
             }
+            catch (IOException x) {
+                resultCode = RESULT_IO_EXCEPTION;
+            }
+        }
+        if (resultCode != RESULT_OK) {
+            // TODO: error handling
         }
     }
 
-    private void cropPicture() {
+    public Uri copyToLocalFile(Uri uri) throws IOException {
+        if( uri == null ) {
+            return null;
+        }
+        if (uri.getHost().equals("file")) {
+            // already local
+            return uri;
+        }
+        // create local file
+        InputStream in = getContentResolver().openInputStream(uri);
+
+        File outFile = createTempImageFile();
+        FileOutputStream out = new FileOutputStream(outFile);
+        byte[] buffer = new byte[4096];
+        int n;
+        while ((n = in.read(buffer)) > 0) {
+            out.write(buffer, 0, n);
+        }
+        in.close();
+        out.close();
+        return Uri.fromFile(outFile);
+    }
+
+    private void cropPicture(Uri pictureLocation) {
+        // this does not work properly
+        // see http://stackoverflow.com/questions/12758425/how-to-set-the-output-image-use-com-android-camera-action-crop
+        //
+        // no official api
         Intent intent = new Intent("com.android.camera.action.CROP");
         intent.setType("image/*");
         List<ResolveInfo> list = getPackageManager().queryIntentActivities(intent, 0);
@@ -182,14 +248,16 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         if (size == 0) {
             Toast.makeText(this, "Can not find image crop app", Toast.LENGTH_SHORT).show();
             return;
-        } else {
-            intent.setData(fNextPhotoUri);
-            intent.putExtra("outputX", 1080);
+        }
+        else {
+            intent.setData(pictureLocation);
+            intent.putExtra("outputX", 1080); // does not work, it returns a smaller size
             intent.putExtra("outputY", 1080);
             intent.putExtra("aspectX", 1);
             intent.putExtra("aspectY", 1);
             intent.putExtra("scale", true);
             intent.putExtra("return-data", true);
+            intent.putExtra("noFaceDetection", true);
             Intent i = new Intent(intent);
             ResolveInfo res = list.get(0);
             i.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));

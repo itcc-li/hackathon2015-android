@@ -29,7 +29,7 @@
                 android:singleLine="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="30dp"
                 android:hint="@string/name" />
 
 
@@ -92,6 +92,18 @@
             android:src="@drawable/ic_camera_alt_white_24dp"
             app:layout_anchor="@id/img_image"
             app:layout_anchorGravity="bottom|right|end" />
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/viw_open_galery_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:clickable="true"
+            android:src="@drawable/ic_collections_white_24dp"
+            app:layout_anchor="@id/img_image"
+            app:layout_anchorGravity="bottom|left|end" />
+
 
     </android.support.design.widget.CoordinatorLayout>
 
