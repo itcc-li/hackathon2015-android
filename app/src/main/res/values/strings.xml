@@ -58,6 +58,7 @@ Thomas Elsensohn
     <string name="my_location">My location</string>
     <string name="refreshing_">Refreshing...</string>
     <string name="done">Done</string>
+    <string name="txt_select_picture">Select picture</string>
 
 
 </resources>

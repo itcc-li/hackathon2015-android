@@ -58,5 +58,6 @@ Thomas Elsensohn
     <string name="my_location">Meine Position</string>
     <string name="refreshing_">Aktualisieren...</string>
     <string name="done">Fertig</string>
+    <string name="txt_select_picture">Bild auswählen</string>
 
 </resources>

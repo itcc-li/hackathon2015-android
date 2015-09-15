@@ -1,5 +1,7 @@
 package li.itcc.hackathon15.services;
 
+import java.io.File;
+
 /**
  * Created by Arthur on 12.09.2015.
  */
@@ -10,6 +12,7 @@ public class PoiDetailBean {
     private String comment;
     private Float rating;
     private byte[] image;
+    private File imageFile;
 
     public String getComment() {
         return comment;
@@ -60,4 +63,11 @@ public class PoiDetailBean {
     }
 
 
+    public void setImageFile(File imageFile) {
+        this.imageFile = imageFile;
+    }
+
+    public File getImageFile() {
+        return imageFile;
+    }
 }
