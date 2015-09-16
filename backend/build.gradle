@@ -39,4 +39,7 @@ appengine {
         getClientLibsOnBuild = true
         getDiscoveryDocsOnBuild = true
     }
+    // this is for testing so that a mobile device (not emulator) can connect to a local test server
+    // see http://stackoverflow.com/questions/17971954/google-app-engine-with-android-testing-endpoints-on-real-device
+    httpAddress = "0.0.0.0"
 }
