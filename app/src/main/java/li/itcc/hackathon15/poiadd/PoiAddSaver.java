@@ -9,8 +9,8 @@ import android.os.AsyncTask;
 import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.database.PoiTableUpdater;
 import li.itcc.hackathon15.services.PoiServices;
-import li.itcc.hackaton15.backend.poiApi.model.PoiCreateBean;
-import li.itcc.hackaton15.backend.poiApi.model.PoiCreateResultBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiCreateResultBean;
 
 /**
  * Created by Arthur on 12.09.2015.

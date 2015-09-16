@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import li.itcc.hackathon15.database.PoiTableUpdater;
 import li.itcc.hackathon15.services.PoiOverviewQuery;
 import li.itcc.hackathon15.services.PoiServices;
-import li.itcc.hackaton15.backend.poiApi.model.PoiOverviewListBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
 
 /**
  * Created by Arthur on 12.09.2015.

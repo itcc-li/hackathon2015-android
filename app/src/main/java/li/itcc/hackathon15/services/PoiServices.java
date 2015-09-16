@@ -9,10 +9,11 @@ import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
-import li.itcc.hackaton15.backend.poiApi.PoiApi;
-import li.itcc.hackaton15.backend.poiApi.model.PoiCreateBean;
-import li.itcc.hackaton15.backend.poiApi.model.PoiCreateResultBean;
-import li.itcc.hackaton15.backend.poiApi.model.PoiOverviewListBean;
+import li.itcc.hackathon15.backend.poiApi.PoiApi;
+import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiCreateResultBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
+
 
 /**
  * Created by Arthur on 12.09.2015.

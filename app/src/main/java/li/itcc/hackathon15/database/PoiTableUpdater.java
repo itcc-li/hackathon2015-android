@@ -7,10 +7,10 @@ import android.database.sqlite.SQLiteStatement;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 
 import li.itcc.hackathon15.poilist.ThumbnailCache;
-import li.itcc.hackaton15.backend.poiApi.model.PoiCreateBean;
-import li.itcc.hackaton15.backend.poiApi.model.PoiCreateResultBean;
-import li.itcc.hackaton15.backend.poiApi.model.PoiOverviewBean;
-import li.itcc.hackaton15.backend.poiApi.model.PoiOverviewListBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiCreateResultBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
 
 /**
  * Created by patrik on 12/09/2015.

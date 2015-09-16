@@ -1,4 +1,4 @@
-package li.itcc.hackaton15.backend;
+package li.itcc.hackathon15.backend;
 
 /**
  * The object model for the data we are sending through endpoints
@@ -49,12 +49,5 @@ public class PoiCreateBean {
     public void setPoiDescription(String poiDescription) {
         this.poiDescription = poiDescription;
     }
-
-
-
-
-
-
-
 
 }

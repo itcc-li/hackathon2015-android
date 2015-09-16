@@ -4,7 +4,7 @@
    https://github.com/GoogleCloudPlatform/gradle-appengine-templates/tree/master/HelloEndpoints
 */
 
-package li.itcc.hackaton15.backend;
+package li.itcc.hackathon15.backend;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
@@ -18,15 +18,19 @@ import com.google.api.server.spi.config.Named;
         name = "poiApi",
         version = "v1",
         namespace = @ApiNamespace(
-                ownerDomain = "backend.hackaton15.itcc.li",
-                ownerName = "backend.hackaton15.itcc.li",
+                ownerDomain = "backend.hackathon15.itcc.li",
+                ownerName = "backend.hackathon15.itcc.li",
                 packagePath = ""
         )
 )
 public class PoiEndpoint {
 
     /**
-     * A simple endpoint method that takes a name and says Hi back
+     * Returns a list of poi for the given latitude and logitude.
+     * @param latitude
+     * @param longitude
+     * @param maxCount
+     * @return The list
      */
     @ApiMethod(name = "getPoiOverviewList")
     public PoiOverviewListBean getPoiOverviewList(@Named("latitude") double latitude, @Named("longitude") double longitude, @Named("maxCount") int maxCount) {
@@ -39,6 +43,11 @@ public class PoiEndpoint {
         return response;
     }
 
+    /**
+     * Inserts a new poi into the database
+     * @param newPoi
+     * @return
+     */
     @ApiMethod(name = "insertPoi")
     public PoiCreateResultBean insertPoi(PoiCreateBean newPoi) {
         PoiCreateResultBean result = new PoiCreateResultBean();

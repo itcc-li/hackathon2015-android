@@ -1,4 +1,4 @@
-package li.itcc.hackaton15.backend;
+package li.itcc.hackathon15.backend;
 
 /**
  * The object model for the data we are sending through endpoints
@@ -6,6 +6,10 @@ package li.itcc.hackaton15.backend;
 public class PoiCreateResultBean {
     private Long poiId;
 
+    /**
+     * The id of the created poi.
+     * @return
+     */
     public Long getPoiId() {
         return poiId;
     }
