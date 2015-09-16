@@ -1,12 +1,12 @@
 package li.itcc.hackathon15.poilist;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import li.itcc.hackathon15.R;
 
@@ -25,6 +25,10 @@ public class ThumbnailCache {
 
     public void clearCache() {
         fCache.clear();
+    }
+
+    public void deleteAllThumbnails() {
+        // TODO
     }
 
     public Bitmap getBitmap(long key) {

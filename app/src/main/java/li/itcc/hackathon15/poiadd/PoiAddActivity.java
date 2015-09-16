@@ -23,12 +23,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.Toast;
 
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.ToastResultListener;
-import li.itcc.hackathon15.services.PoiDetailBean;
+import li.itcc.hackaton15.backend.poiApi.model.PoiCreateBean;
+import li.itcc.hackaton15.backend.poiApi.model.PoiCreateResultBean;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -42,8 +42,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     private View fCancelButton;
     private View fSaveButton;
     private EditText fName;
-    private EditText fComment;
-    private RatingBar fRating;
+    private EditText fDescription;
     private Location fLocation;
     private View fTakePictureButton;
     private ImageView fImage;
@@ -107,8 +106,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
             }
         });
         fName = (EditText)findViewById(R.id.etx_name);
-        fComment = (EditText)findViewById(R.id.etx_comment);
-        fRating = (RatingBar)findViewById(R.id.rbr_rating);
+        fDescription = (EditText)findViewById(R.id.etx_description);
         fImage = (ImageView)findViewById(R.id.img_image);
     }
 
@@ -133,16 +131,15 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     }
 
     private void onSaveClick(View v) {
-        PoiDetailBean detail = new PoiDetailBean();
+        PoiCreateBean detail = new PoiCreateBean();
         detail.setPoiName(fName.getText().toString());
-        detail.setComment(fComment.getText().toString());
-        detail.setRating(new Float(fRating.getRating()));
+        detail.setPoiDescription(fDescription.getText().toString());
         if (fLocation != null) {
             detail.setLatitude(fLocation.getLatitude());
             detail.setLongitude(fLocation.getLongitude());
         }
-        detail.setImageFile(fLocalImageFileCropped);
         PoiAddSaver saver = new PoiAddSaver(getApplicationContext(), this);
+        saver.setLocalImageFile(fLocalImageFileCropped);
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show();
         fSaveButton.setEnabled(false);
         saver.save(detail);
@@ -154,7 +151,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
 
 
     @Override
-    public void onDetailSaved(Throwable th) {
+    public void onDetailSaved(PoiCreateResultBean newBean, Throwable th) {
         if (th != null) {
             fSaveButton.setEnabled(true);
             new ToastResultListener(this).onRefreshDone(th);

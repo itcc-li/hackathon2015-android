@@ -39,6 +39,15 @@ public class PoiEndpoint {
         return response;
     }
 
+    @ApiMethod(name = "insertPoi")
+    public PoiCreateResultBean insertPoi(PoiCreateBean newPoi) {
+        PoiCreateResultBean result = new PoiCreateResultBean();
+        result.setPoiId(5L);
+        return result;
+    }
+
+    //// private helpers
+
     private PoiOverviewBean createBean(String poiName, double latitude, double longitude, float rating, long poiId) {
         PoiOverviewBean result = new PoiOverviewBean();
         result.setPoiName(poiName);

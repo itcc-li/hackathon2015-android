@@ -4,43 +4,36 @@ package li.itcc.hackaton15.backend;
  * The object model for the data we are sending through endpoints
  */
 public class PoiOverviewBean {
-    private long poiId;
-    private double longitude;
-    private double latitude;
+    private Long poiId;
+    private Double longitude;
+    private Double latitude;
     private String poiName;
     private String poiDescription;
-    private float rating;
-    private String thumbnail;
+    private Float rating;
+    private String thumbnailBase64;
 
-    public String getThumbnail() {
-        return thumbnail;
-    }
 
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
-    }
-
-    public long getPoiId() {
+    public Long getPoiId() {
         return poiId;
     }
 
-    public void setPoiId(long poiId) {
+    public void setPoiId(Long poiId) {
         this.poiId = poiId;
     }
 
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
@@ -60,15 +53,19 @@ public class PoiOverviewBean {
         this.poiDescription = poiDescription;
     }
 
-    public float getRating() {
+    public Float getRating() {
         return rating;
     }
 
-    public void setRating(float rating) {
+    public void setRating(Float rating) {
         this.rating = rating;
     }
 
+    public String getThumbnailBase64() {
+        return thumbnailBase64;
+    }
 
-
-
+    public void setThumbnailBase64(String thumbnailBase64) {
+        this.thumbnailBase64 = thumbnailBase64;
+    }
 }
