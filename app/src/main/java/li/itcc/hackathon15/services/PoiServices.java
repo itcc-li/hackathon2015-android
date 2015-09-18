@@ -10,6 +10,7 @@ import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
 import li.itcc.hackathon15.backend.poiApi.PoiApi;
+import li.itcc.hackathon15.backend.poiApi.model.ImageUploadUrlBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateResultBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
@@ -52,6 +53,10 @@ public class PoiServices {
 
     public PoiCreateResultBean insertPoi(PoiCreateBean newPoi) throws Exception {
         return sfPoiApiService.insertPoi(newPoi).execute();
+    }
+
+    public ImageUploadUrlBean getImageUploadUrl() throws Exception {
+        return sfPoiApiService.getImageUploadUrl().execute();
     }
 
 }

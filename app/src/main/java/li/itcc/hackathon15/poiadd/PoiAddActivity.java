@@ -23,17 +23,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.ToastResultListener;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateResultBean;
+import li.itcc.hackathon15.util.StreamUtil;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.PoiAddSaveDoneListener {
+public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.PoiAddSaveProgressListener {
     private static final String KEY_LOCATION = "KEY_LOCATION";
     private static final int REQUEST_TAKE_PICTURE = 1;
     private static final int REQUEST_GET_GALLERY_PICTURE = 2;
@@ -50,13 +52,13 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     private File fLocalImageFileOriginal;
     private File fLocalImageFileCropped;
     private View fClearPictureButton;
+    private ProgressBar fProgressBar;
 
     public static void start(Activity parent, Location location) {
         Intent i = new Intent(parent, PoiAddActivity.class);
         i.putExtra(KEY_LOCATION, location);
         parent.startActivityForResult(i, 0);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +110,10 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         fName = (EditText)findViewById(R.id.etx_name);
         fDescription = (EditText)findViewById(R.id.etx_description);
         fImage = (ImageView)findViewById(R.id.img_image);
+        fProgressBar = (ProgressBar)findViewById(R.id.prb_progress);
+        fProgressBar.setMax(100);
+        fProgressBar.setProgress(0);
+        fProgressBar.setVisibility(View.INVISIBLE);
     }
 
     private void onClearPictureClick(View v) {
@@ -142,6 +148,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         saver.setLocalImageFile(fLocalImageFileCropped);
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show();
         fSaveButton.setEnabled(false);
+        fProgressBar.setVisibility(View.VISIBLE);
         saver.save(detail);
     }
 
@@ -149,11 +156,17 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         finish();
     }
 
+    //
+    @Override
+    public void onProgress(int percent) {
+        fProgressBar.setProgress(percent);
+    }
 
     @Override
     public void onDetailSaved(PoiCreateResultBean newBean, Throwable th) {
         if (th != null) {
             fSaveButton.setEnabled(true);
+            fProgressBar.setVisibility(View.INVISIBLE);
             new ToastResultListener(this).onRefreshDone(th);
         }
         else {
@@ -269,15 +282,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     private long copyToOutput(InputStream in) throws IOException {
         File outFile = fLocalImageFileOriginal;
         FileOutputStream out = new FileOutputStream(outFile);
-        byte[] buffer = new byte[10000];
-        int n;
-        long totalSize = 0;
-        while ((n = in.read(buffer)) > 0) {
-            out.write(buffer, 0, n);
-            totalSize += n;
-        }
-        in.close();
-        out.close();
+        long totalSize = StreamUtil.pumpAllAndClose(in, out);
         return totalSize;
     }
 

@@ -5,13 +5,8 @@ package li.itcc.hackathon15;
  */
 public class ReleaseConfig {
 
-    /**
-     * For local testin only
-     * @param url
-     * @return
-     */
     public static String dnsHack(String url) {
-        url = url.replaceAll("NetCatDev", "192.168.160.2");
+        // no hack in release mode
         return url;
     }
 }

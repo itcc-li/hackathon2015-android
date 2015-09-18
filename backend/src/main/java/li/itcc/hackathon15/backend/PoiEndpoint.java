@@ -10,6 +10,8 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 
 /**
  * An endpoint class we are exposing
@@ -41,6 +43,17 @@ public class PoiEndpoint {
         list[2] = createBean("Guatabärg Burg", 47.065425, 9.500695, 4.8f, 3L);
         response.setList(list);
         return response;
+    }
+
+    @ApiMethod(name = "getImageUploadUrl")
+    public ImageUploadUrlBean getImageUploadUrl() {
+        BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+        // Note: /uploadcallback is the callback that the blobstore will call
+        // as soon as the upload is done. We have our own servlet there
+        String blobUploadUrl = blobstoreService.createUploadUrl("/uploadcallback");
+        ImageUploadUrlBean bean = new ImageUploadUrlBean();
+        bean.setUrl(blobUploadUrl);
+        return bean;
     }
 
     /**

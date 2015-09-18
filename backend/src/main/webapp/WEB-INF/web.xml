@@ -13,6 +13,18 @@
         <url-pattern>/_ah/spi/*</url-pattern>
     </servlet-mapping>
 
+    <!-- upload callback -->
+
+    <servlet>
+        <servlet-name>UploadCallback</servlet-name>
+        <servlet-class>li.itcc.hackathon15.servlets.UploadCallback</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UploadCallback</servlet-name>
+        <url-pattern>/uploadcallback</url-pattern>
+    </servlet-mapping>
+
+
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
