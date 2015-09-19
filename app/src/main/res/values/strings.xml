@@ -59,6 +59,9 @@ Thomas Elsensohn
     <string name="refreshing_">Refreshing...</string>
     <string name="done">Done</string>
     <string name="txt_select_picture">Select picture</string>
+    <string name="txt_input_missing">Eingabe fehlt</string>
+    <string name="txt_input_too_short">Eingabe zu kurz</string>
+    <string name="txt_input_too_long">Eingabe zu lang</string>
 
 
 </resources>

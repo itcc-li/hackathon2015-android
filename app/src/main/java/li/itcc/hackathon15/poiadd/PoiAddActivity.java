@@ -24,13 +24,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
+import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.ToastResultListener;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.util.StreamUtil;
+import li.itcc.hackathon15.util.ValidationHelper;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -137,9 +138,16 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     }
 
     private void onSaveClick(View v) {
+        // validate input
+        ValidationHelper vh = new ValidationHelper(this);
+        String poiName = vh.validateText(fName, PoiConstants.POI_NAME_LENGTH_MIN, PoiConstants.POI_NAME_LENGTH_MAX);
+        String poiDescription = vh.validateText(fDescription, PoiConstants.POI_COMMENT_LENGTH_MAX);
+        if (vh.hasErrors()) {
+            return;
+        }
         PoiCreateBean detail = new PoiCreateBean();
-        detail.setPoiName(fName.getText().toString());
-        detail.setPoiDescription(fDescription.getText().toString());
+        detail.setPoiName(poiName);
+        detail.setPoiDescription(poiDescription);
         if (fLocation != null) {
             detail.setLatitude(fLocation.getLatitude());
             detail.setLongitude(fLocation.getLongitude());
@@ -151,8 +159,8 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         }
         PoiAddSaver saver = new PoiAddSaver(getApplicationContext(), this);
         saver.setLocalImageFile(fLocalImageFileCropped);
-        Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show();
         fSaveButton.setEnabled(false);
+        fProgressBar.setProgress(0);
         fProgressBar.setVisibility(View.VISIBLE);
         saver.save(detail);
     }
@@ -161,23 +169,21 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
         finish();
     }
 
-    //
     @Override
-    public void onProgress(int percent) {
-        fProgressBar.setProgress(percent);
+    public void onPoiSaved(PoiOverviewBean newBean) {
+        finish();
     }
 
     @Override
-    public void onDetailSaved(PoiOverviewBean newBean, Throwable th) {
-        if (th != null) {
-            fSaveButton.setEnabled(true);
-            fProgressBar.setVisibility(View.INVISIBLE);
-            new ToastResultListener(this).onRefreshDone(th);
-        }
-        else {
-            Toast.makeText(this, R.string.saving_done, Toast.LENGTH_SHORT).show();
-            finish();
-        }
+    public void onProgressChanged(int percentage) {
+        fProgressBar.setProgress(percentage);
+    }
+
+    @Override
+    public void onThrowableOccurred(Throwable th) {
+        fSaveButton.setEnabled(true);
+        fProgressBar.setVisibility(View.INVISIBLE);
+        new ToastResultListener(this).onRefreshDone(th);
     }
 
     // getting pictures

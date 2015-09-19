@@ -15,6 +15,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import li.itcc.hackathon15.ReleaseConfig;
 import li.itcc.hackathon15.services.PoiServices;
+import li.itcc.hackathon15.util.ProgressListener;
 
 /**
  * Created by Arthur on 19.09.2015.

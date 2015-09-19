@@ -11,6 +11,8 @@ import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.database.PoiTableUpdater;
 import li.itcc.hackathon15.services.PoiServices;
+import li.itcc.hackathon15.util.ProgressListener;
+import li.itcc.hackathon15.util.ThrowableListener;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -24,11 +26,10 @@ public class PoiAddSaver {
         fLocalImageFile = localImageFile;
     }
 
-    public interface PoiAddSaveProgressListener {
+    public interface PoiAddSaveProgressListener extends ProgressListener, ThrowableListener {
 
-        void onProgress(int percent);
+        void onPoiSaved(PoiOverviewBean newBean);
 
-        void onDetailSaved(PoiOverviewBean newBean, Throwable th);
     }
 
     public PoiAddSaver(Context context, PoiAddSaveProgressListener listener) {
@@ -88,7 +89,7 @@ public class PoiAddSaver {
             // method is called in the UI thread
             super.onProgressUpdate(values);
             if (fListener != null) {
-                fListener.onProgress(values[0]);
+                fListener.onProgressChanged(values[0]);
             }
         }
 
@@ -96,7 +97,12 @@ public class PoiAddSaver {
         protected void onPostExecute(PoiOverviewBean newBean) {
             super.onPostExecute(newBean);
             if (fListener != null) {
-                fListener.onDetailSaved(newBean, fException);
+                if (fException != null) {
+                    fListener.onThrowableOccurred(fException);
+                }
+                else {
+                    fListener.onPoiSaved(newBean);
+                }
             }
         }
 
