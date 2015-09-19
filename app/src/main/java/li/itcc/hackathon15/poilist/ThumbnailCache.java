@@ -18,7 +18,6 @@ public class ThumbnailCache {
     private HashMap<Long, Bitmap> fCache = new HashMap<>();
     private Bitmap fBrokenBitmap;
 
-
     public ThumbnailCache(Context context) {
         fContext = context;
     }

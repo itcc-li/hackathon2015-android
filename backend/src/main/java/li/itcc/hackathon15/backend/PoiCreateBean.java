@@ -8,15 +8,7 @@ public class PoiCreateBean {
     private double latitude;
     private String poiName;
     private String poiDescription;
-    private String imageBlobUrl;
-
-    public String getImageBlobUrl() {
-        return imageBlobUrl;
-    }
-
-    public void setImageBlobUrl(String imageBlobUrl) {
-        this.imageBlobUrl = imageBlobUrl;
-    }
+    private String imageBlobKey;
 
     public double getLongitude() {
         return longitude;
@@ -50,4 +42,11 @@ public class PoiCreateBean {
         this.poiDescription = poiDescription;
     }
 
+    public String getImageBlobKey() {
+        return imageBlobKey;
+    }
+
+    public void setImageBlobKey(String imageBlobKey) {
+        this.imageBlobKey = imageBlobKey;
+    }
 }

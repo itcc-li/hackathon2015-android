@@ -1,8 +1,9 @@
-package li.itcc.hackathon15;
+package li.itcc.hackathon15.poilist;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
+import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.database.PoiTableUpdater;
 import li.itcc.hackathon15.services.PoiOverviewQuery;
 import li.itcc.hackathon15.services.PoiServices;

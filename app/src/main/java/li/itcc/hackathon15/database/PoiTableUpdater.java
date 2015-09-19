@@ -6,11 +6,9 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 
-import li.itcc.hackathon15.poilist.ThumbnailCache;
-import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
-import li.itcc.hackathon15.backend.poiApi.model.PoiCreateResultBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
+import li.itcc.hackathon15.poilist.ThumbnailCache;
 
 /**
  * Created by patrik on 12/09/2015.
@@ -39,23 +37,13 @@ public class PoiTableUpdater  {
         fContext.getContentResolver().notifyChange(DatabaseContract.Pois.CONTENT_URI, null);
     }
 
-    public void insertPoiOverview(PoiCreateBean param, PoiCreateResultBean result) throws Exception {
+    public void insertPoiOverview(PoiOverviewBean result) throws Exception {
         dbOpenHelper = new PoiDBOpenHelper(fContext);
         SQLiteDatabase dbWrite = dbOpenHelper.getWritableDatabase();
         SQLiteStatement insertStatement = createInsertStatement(dbWrite);
-        byte[] thumb = null; // TODO: create thumb
-        executeInsert(insertStatement, param, result, thumb);
+        executeInsert(insertStatement, result);
         insertStatement.close();
         fContext.getContentResolver().notifyChange(DatabaseContract.Pois.CONTENT_URI, null);
-    }
-
-    private void executeInsert(SQLiteStatement insertStatement, PoiCreateBean param, PoiCreateResultBean result, byte[] thumb) throws Exception {
-        insertStatement.bindLong(1, result.getPoiId());
-        insertStatement.bindString(2, param.getPoiName());
-        insertStatement.bindDouble(3, param.getLongitude());
-        insertStatement.bindDouble(4, param.getLatitude());
-        insertStatement.execute();
-        fCache.storeBitmap(result.getPoiId(), thumb);
     }
 
     private void executeInsert(SQLiteStatement insertStatement, PoiOverviewBean poi) throws Exception {

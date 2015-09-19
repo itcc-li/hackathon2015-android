@@ -29,7 +29,7 @@ import android.widget.Toast;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.ToastResultListener;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
-import li.itcc.hackathon15.backend.poiApi.model.PoiCreateResultBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.util.StreamUtil;
 
 /**
@@ -144,6 +144,11 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
             detail.setLatitude(fLocation.getLatitude());
             detail.setLongitude(fLocation.getLongitude());
         }
+        else {
+            // TODO long lat must be defined
+            detail.setLongitude(0.0);
+            detail.setLatitude(0.0);
+        }
         PoiAddSaver saver = new PoiAddSaver(getApplicationContext(), this);
         saver.setLocalImageFile(fLocalImageFileCropped);
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show();
@@ -163,7 +168,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     }
 
     @Override
-    public void onDetailSaved(PoiCreateResultBean newBean, Throwable th) {
+    public void onDetailSaved(PoiOverviewBean newBean, Throwable th) {
         if (th != null) {
             fSaveButton.setEnabled(true);
             fProgressBar.setVisibility(View.INVISIBLE);

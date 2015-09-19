@@ -1,7 +1,12 @@
 package li.itcc.hackathon15;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import android.content.Context;
 import android.widget.Toast;
+
+import li.itcc.hackathon15.poilist.PoiRefresher;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -19,7 +24,10 @@ public class ToastResultListener implements PoiRefresher.RefreshDoneListener {
             Toast.makeText(fContext, R.string.done, Toast.LENGTH_SHORT).show();
         }
         else {
-            Toast.makeText(fContext, "Exception " + th.getClass().getName() + " " + th.getMessage(), Toast.LENGTH_LONG).show();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            th.printStackTrace(pw);
+            Toast.makeText(fContext, "Exception " + th.getClass().getName() + " " + th.getMessage() + "\n" + sw.toString(), Toast.LENGTH_LONG).show();
         }
     }
 }

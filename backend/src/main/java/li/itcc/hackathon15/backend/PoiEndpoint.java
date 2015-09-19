@@ -10,8 +10,16 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
+import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.images.Image;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.Transform;
+import com.google.appengine.repackaged.com.google.common.util.Base64;
+
+import li.itcc.hackathon15.util.BackendUtils;
 
 /**
  * An endpoint class we are exposing
@@ -38,7 +46,7 @@ public class PoiEndpoint {
     public PoiOverviewListBean getPoiOverviewList(@Named("latitude") double latitude, @Named("longitude") double longitude, @Named("maxCount") int maxCount) {
         PoiOverviewListBean response = new PoiOverviewListBean();
         PoiOverviewBean[] list = new PoiOverviewBean[3];
-        list[0] = createBean("Städtle Vaduz", 47.140937, 9.520890, 3.5f, 1L);
+        list[0] = createBean("Vaduz Städtle", 47.140937, 9.520890, 3.5f, 1L);
         list[1] = createBean("Kirchile Malbun", 47.102931, 9.610188, 4.2f, 2L);
         list[2] = createBean("Guatabärg Burg", 47.065425, 9.500695, 4.8f, 3L);
         response.setList(list);
@@ -62,11 +70,32 @@ public class PoiEndpoint {
      * @return
      */
     @ApiMethod(name = "insertPoi")
-    public PoiCreateResultBean insertPoi(PoiCreateBean newPoi) {
-        PoiCreateResultBean result = new PoiCreateResultBean();
+    public PoiOverviewBean insertPoi(PoiCreateBean newPoi) throws Exception {
+        PoiOverviewBean result = new PoiOverviewBean();
+        // check all values
+        String imageBlobKey = newPoi.getImageBlobKey();
+        if (imageBlobKey != null) {
+            // check image
+            BlobKey blobKey = new BlobKey(imageBlobKey);
+            Image originalImage = BackendUtils.getVerifiedImage(blobKey);
+            // now, resize the image
+            ImagesService imagesService = ImagesServiceFactory.getImagesService();
+            Transform resize = ImagesServiceFactory.makeResize(108, 108);
+            Image newImage = imagesService.applyTransform(resize, originalImage);
+            byte[] newImageData = newImage.getImageData();
+            // temp hack
+            String base64 = Base64.encode(newImageData, 0, newImageData.length, Base64.getAlphabet(), true);
+            result.setThumbnailBase64(base64);
+        }
+        result.setLatitude(newPoi.getLatitude());
+        result.setLongitude(newPoi.getLongitude());
+        result.setPoiName(newPoi.getPoiName());
+        result.setPoiDescription(newPoi.getPoiDescription());
+        result.setRating(0.0f);
         result.setPoiId(5L);
         return result;
     }
+
 
     //// private helpers
 
