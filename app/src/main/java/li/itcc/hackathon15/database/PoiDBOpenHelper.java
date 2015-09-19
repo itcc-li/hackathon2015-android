@@ -8,7 +8,7 @@ import android.util.Log;
 class PoiDBOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SummitBookDatabase.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // SQL Statement to create a new database.
     private static final String DATABASE_CREATE = "create table " +
@@ -17,7 +17,8 @@ class PoiDBOpenHelper extends SQLiteOpenHelper {
     DatabaseContract.Pois.POI_ID + " integer, " +
     DatabaseContract.Pois.POI_LONGITUDE + " real, " +
     DatabaseContract.Pois.POI_LATITUDE + " real, " +
-    DatabaseContract.Pois.POI_NAME + " string not null);";
+    DatabaseContract.Pois.POI_NAME + " string not null, " +
+    DatabaseContract.Pois.POI_SHORT_DESCRIPTION + " string);";
 
     public PoiDBOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,7 +46,7 @@ class PoiDBOpenHelper extends SQLiteOpenHelper {
         // comparing oldVersion and newVersion values.
 
         // The simplest case is to drop the old table and create a new one.
-        db.execSQL("DROP TABLE IF IT EXISTS " + PoiDatabaseConstants.TABLE_POIS);
+        db.execSQL("DROP TABLE IF EXISTS " + PoiDatabaseConstants.TABLE_POIS);
         // Create a new one.
         onCreate(db);
     }

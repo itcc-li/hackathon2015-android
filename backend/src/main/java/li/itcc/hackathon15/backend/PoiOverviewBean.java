@@ -8,7 +8,7 @@ public class PoiOverviewBean {
     private Double longitude;
     private Double latitude;
     private String poiName;
-    private String poiDescription;
+    private String shortPoiDescription;
     private Float rating;
     private String thumbnailBase64;
 
@@ -45,14 +45,6 @@ public class PoiOverviewBean {
         this.poiName = poiName;
     }
 
-    public String getPoiDescription() {
-        return poiDescription;
-    }
-
-    public void setPoiDescription(String poiDescription) {
-        this.poiDescription = poiDescription;
-    }
-
     public Float getRating() {
         return rating;
     }
@@ -67,5 +59,13 @@ public class PoiOverviewBean {
 
     public void setThumbnailBase64(String thumbnailBase64) {
         this.thumbnailBase64 = thumbnailBase64;
+    }
+
+    public String getShortPoiDescription() {
+        return shortPoiDescription;
+    }
+
+    public void setShortPoiDescription(String shortPoiDescription) {
+        this.shortPoiDescription = shortPoiDescription;
     }
 }

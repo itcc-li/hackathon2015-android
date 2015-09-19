@@ -22,6 +22,7 @@ public class DatabaseContract {
         public static final String _ID = BaseColumns._ID;
         public static final String POI_ID = "poi_id";
         public static final String POI_NAME = "poi_name";
+        public static final String POI_SHORT_DESCRIPTION = "poi_short_desc";
         public static final String POI_LONGITUDE = "poi_longitude";
         public static final String POI_LATITUDE = "poi_latitude";
     }

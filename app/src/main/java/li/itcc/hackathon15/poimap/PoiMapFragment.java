@@ -1,6 +1,8 @@
 package li.itcc.hackathon15.poimap;
 
 
+import java.util.HashMap;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
@@ -22,8 +24,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.HashMap;
 
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
@@ -175,16 +175,19 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         int longitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LONGITUDE);
         int latitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LATITUDE);
         int nameCol = data.getColumnIndex(DatabaseContract.Pois.POI_NAME);
+        int descrCol = data.getColumnIndex(DatabaseContract.Pois.POI_SHORT_DESCRIPTION);
         int idCol = data.getColumnIndex(DatabaseContract.Pois.POI_ID);
         if (data.moveToFirst()) {
             do {
                 double longitude = data.getDouble(longitudeCol);
                 double latitude = data.getDouble(latitudeCol);
                 String name = data.getString(nameCol);
+                String shortDescr = data.getString(descrCol);
                 long id = data.getLong(idCol);
                 LatLng loc = new LatLng(latitude, longitude);
                 Marker marker = fMap.addMarker(new MarkerOptions()
                         .title(name)
+                        .snippet(shortDescr)
                         .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.poi_pin)));
                 fMarkers.put(marker, new Long(id));
             } while (data.moveToNext());

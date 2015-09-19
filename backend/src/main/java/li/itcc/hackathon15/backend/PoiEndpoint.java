@@ -46,9 +46,9 @@ public class PoiEndpoint {
     public PoiOverviewListBean getPoiOverviewList(@Named("latitude") double latitude, @Named("longitude") double longitude, @Named("maxCount") int maxCount) {
         PoiOverviewListBean response = new PoiOverviewListBean();
         PoiOverviewBean[] list = new PoiOverviewBean[3];
-        list[0] = createBean("Vaduz Städtle", 47.140937, 9.520890, 3.5f, 1L);
-        list[1] = createBean("Kirchile Malbun", 47.102931, 9.610188, 4.2f, 2L);
-        list[2] = createBean("Guatabärg Burg", 47.065425, 9.500695, 4.8f, 3L);
+        list[0] = createBean("Vaduz Städtle", 47.140937, 9.520890, 3.5f, 1L, "Ein lässiges Städtle, mitten in Liechtenstein");
+        list[1] = createBean("Kirchile Malbun", 47.102931, 9.610188, 4.2f, 2L, "Kleines Kirchile am Rande von Malbun");
+        list[2] = createBean("Guatabärg Burg", 47.065425, 9.500695, 4.8f, 3L, "Mitten in Balzers auf einem Hügel gelegene Burg");
         response.setList(list);
         return response;
     }
@@ -90,18 +90,27 @@ public class PoiEndpoint {
         result.setLatitude(newPoi.getLatitude());
         result.setLongitude(newPoi.getLongitude());
         result.setPoiName(newPoi.getPoiName());
-        result.setPoiDescription(newPoi.getPoiDescription());
+        result.setShortPoiDescription(shorten(newPoi.getPoiDescription(), 80));
         result.setRating(0.0f);
         result.setPoiId(5L);
         return result;
     }
 
+    private String shorten(String text, int maxLen) {
+        if (text == null || text.length() <= maxLen) {
+            return text;
+        }
+        text = text.substring(0, maxLen-3) + "...";
+        return text;
+    }
+
 
     //// private helpers
 
-    private PoiOverviewBean createBean(String poiName, double latitude, double longitude, float rating, long poiId) {
+    private PoiOverviewBean createBean(String poiName, double latitude, double longitude, float rating, long poiId, String shortDesc) {
         PoiOverviewBean result = new PoiOverviewBean();
         result.setPoiName(poiName);
+        result.setShortPoiDescription(shortDesc);
         result.setLatitude(latitude);
         result.setLongitude(longitude);
         result.setRating(rating);

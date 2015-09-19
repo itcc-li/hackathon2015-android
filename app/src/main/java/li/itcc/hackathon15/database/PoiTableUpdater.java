@@ -49,8 +49,9 @@ public class PoiTableUpdater  {
     private void executeInsert(SQLiteStatement insertStatement, PoiOverviewBean poi) throws Exception {
         insertStatement.bindLong(1, poi.getPoiId());
         insertStatement.bindString(2, poi.getPoiName());
-        insertStatement.bindDouble(3, poi.getLongitude());
-        insertStatement.bindDouble(4, poi.getLatitude());
+        insertStatement.bindString(3, poi.getShortPoiDescription());
+        insertStatement.bindDouble(4, poi.getLongitude());
+        insertStatement.bindDouble(5, poi.getLatitude());
         insertStatement.execute();
         String thumbnail = poi.getThumbnailBase64();
         byte[] thumbnailData = Base64.decodeBase64(thumbnail);
@@ -63,8 +64,9 @@ public class PoiTableUpdater  {
         String sql = "insert into " + PoiDatabaseConstants.TABLE_POIS + "(" +
         DatabaseContract.Pois.POI_ID + "," +
         DatabaseContract.Pois.POI_NAME + "," +
+        DatabaseContract.Pois.POI_SHORT_DESCRIPTION + "," +
         DatabaseContract.Pois.POI_LONGITUDE + "," +
-        DatabaseContract.Pois.POI_LATITUDE + ") values (?,?,?,?)";
+        DatabaseContract.Pois.POI_LATITUDE + ") values (?,?,?,?,?)";
         return dbWrite.compileStatement(sql);
     }
 

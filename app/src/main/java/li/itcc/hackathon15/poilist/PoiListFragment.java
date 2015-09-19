@@ -184,6 +184,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         private final String[] fColumnNames;
         private final int[] fColumnIndices;
         private int POI_NAME_INDEX;
+        private int POI_SHORT_DESCRIPTION;
         private int POI_LATITUDE_INDEX;
         private int POI_LONGITUDE_INDEX;
         private int POI_ID_INDEX;
@@ -192,11 +193,12 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             super(context, R.layout.poi_list_row, null, FLAG_REGISTER_CONTENT_OBSERVER);
             int count = 0;
             POI_NAME_INDEX = count++;
+            POI_SHORT_DESCRIPTION = count++;
             POI_LATITUDE_INDEX = count++;
             POI_LONGITUDE_INDEX = count++;
             POI_ID_INDEX = count++;
             // Note: must be same order
-            fColumnNames = new String[]{DatabaseContract.Pois.POI_NAME, DatabaseContract.Pois.POI_LATITUDE, DatabaseContract.Pois.POI_LONGITUDE, DatabaseContract.Pois.POI_ID};
+            fColumnNames = new String[]{DatabaseContract.Pois.POI_NAME, DatabaseContract.Pois.POI_SHORT_DESCRIPTION, DatabaseContract.Pois.POI_LATITUDE, DatabaseContract.Pois.POI_LONGITUDE, DatabaseContract.Pois.POI_ID};
             fColumnIndices = new int[fColumnNames.length];
         }
 
@@ -223,6 +225,9 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             // name
             TextView name = (TextView) view.findViewById(R.id.txv_poi_name);
             name.setText(cursor.getString(fColumnIndices[POI_NAME_INDEX]));
+            // short description
+            TextView description = (TextView) view.findViewById(R.id.txv_description);
+            description.setText(cursor.getString(fColumnIndices[POI_SHORT_DESCRIPTION]));
             // distance
             TextView distance = (TextView) view.findViewById(R.id.txv_poi_distance);
             if (fLocation != null) {
@@ -241,7 +246,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
                 }
                 distance.setText(distanceText);
             } else {
-                distance.setText(R.string.searching_);
+                distance.setText("");
             }
             // thumb
             long id = cursor.getLong(fColumnIndices[POI_ID_INDEX]);
