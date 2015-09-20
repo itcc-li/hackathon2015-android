@@ -40,7 +40,7 @@ public class BackendUtils {
 
     private static void throwBadRequest(BlobKey blobKey, String s) throws IOException {
         BlobstoreServiceFactory.getBlobstoreService().delete(blobKey);
-        throw new IOException(s);
+        throw new IllegalArgumentException(s);
     }
 
 }

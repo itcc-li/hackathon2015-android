@@ -1,10 +1,11 @@
 package li.itcc.hackathon15.database;
 
+import java.util.List;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-
-import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
+import android.util.Base64;
 
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
@@ -29,11 +30,14 @@ public class PoiTableUpdater  {
         // delete full table
         dbWrite.execSQL("delete from " + PoiDatabaseConstants.TABLE_POIS);
         fCache.deleteAllThumbnails();
-        SQLiteStatement insertStatement = createInsertStatement(dbWrite);
-        for (PoiOverviewBean poi:listBean.getList()) {
-            executeInsert(insertStatement, poi);
+        List<PoiOverviewBean> list = listBean.getList();
+        if (list != null) {
+            SQLiteStatement insertStatement = createInsertStatement(dbWrite);
+            for (PoiOverviewBean poi : listBean.getList()) {
+                executeInsert(insertStatement, poi);
+            }
+            insertStatement.close();
         }
-        insertStatement.close();
         fContext.getContentResolver().notifyChange(DatabaseContract.Pois.CONTENT_URI, null);
     }
 
@@ -49,12 +53,18 @@ public class PoiTableUpdater  {
     private void executeInsert(SQLiteStatement insertStatement, PoiOverviewBean poi) throws Exception {
         insertStatement.bindLong(1, poi.getPoiId());
         insertStatement.bindString(2, poi.getPoiName());
-        insertStatement.bindString(3, poi.getShortPoiDescription());
+        String shortDescription = poi.getShortPoiDescription();
+        if (shortDescription == null) {
+            insertStatement.bindNull(3);
+        }
+        else {
+            insertStatement.bindString(3, shortDescription);
+        }
         insertStatement.bindDouble(4, poi.getLongitude());
         insertStatement.bindDouble(5, poi.getLatitude());
         insertStatement.execute();
         String thumbnail = poi.getThumbnailBase64();
-        byte[] thumbnailData = Base64.decodeBase64(thumbnail);
+        byte[] thumbnailData = android.util.Base64.decode(thumbnail, Base64.DEFAULT);
         fCache.storeBitmap(poi.getPoiId(), thumbnailData);
     }
 
