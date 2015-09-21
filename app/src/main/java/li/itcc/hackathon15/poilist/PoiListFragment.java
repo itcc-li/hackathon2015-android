@@ -21,22 +21,25 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
 import li.itcc.hackathon15.database.DatabaseContract;
 import li.itcc.hackathon15.gps.GPSDeliverer;
 import li.itcc.hackathon15.gps.GPSLocationListener;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
+import li.itcc.hackathon15.util.ExceptionHandler;
 
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, PoiAddOnClickListener.LocationProvider, GPSLocationListener {
+public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, PoiAddOnClickListener.LocationProvider, GPSLocationListener, PoiListLoader.PoiListLoaderListener {
     private DecimalFormat FORMAT_0 = new DecimalFormat("#,##0");
     private DecimalFormat FORMAT_1 = new DecimalFormat("#,##0.0");
     private PoiCursorAdapter fDataAdapter;
@@ -46,6 +49,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     private Location fLocation;
     private GPSDeliverer fGpsDeliverer;
     private ThumbnailCache fThumbnailCache;
+    private ProgressBar fProgressBar;
 
     public PoiListFragment() {
     }
@@ -65,6 +69,9 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         fEmptyText = (TextView) rootView.findViewById(android.R.id.empty);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
         fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
+        fProgressBar = (ProgressBar)rootView.findViewById(R.id.prb_progress);
+        fProgressBar.setMax(100);
+        fProgressBar.setVisibility(View.GONE);
         fDataAdapter = new PoiCursorAdapter(activity);
         fListView.setAdapter(fDataAdapter);
         fListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -77,6 +84,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         return rootView;
     }
 
+
     private void onListItemClick(int position, long id) {
         Cursor c = (Cursor)fDataAdapter.getItem(position);
         long poiId = c.getLong(c.getColumnIndex(DatabaseContract.Pois.POI_ID));
@@ -86,6 +94,9 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        // Indicate that this fragment would like to influence the set of actions in the action bar.
+        setHasOptionsMenu(true);
+        // start loading
         getLoaderManager().initLoader(0, null, this);
         fGpsDeliverer = new GPSDeliverer(getActivity(), 0L);
         fGpsDeliverer.setListener(this);
@@ -95,18 +106,20 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //inflater.inflate(R.menu.add_poi, menu);
+        inflater.inflate(R.menu.poi_list, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //if (item.getItemId() == R.id.action_add_poi) {
-        //    Intent intent = AddBookActivity.createStartIntent(getActivity());
-        //    startActivity(intent);
-        //    return true;
-        //}
-        return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.action_refresh) {
+            fProgressBar.setVisibility(View.VISIBLE);
+            new PoiListLoader(getContext(), this).refresh();
+            return true;
+        }
+        else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     private void updateTableVisibility() {
@@ -117,6 +130,24 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             fEmptyText.setVisibility(View.GONE);
             fListView.setVisibility(View.VISIBLE);
         }
+    }
+
+    // list refreshing
+
+    @Override
+    public void onTaskAborted(Throwable th) {
+        fProgressBar.setVisibility(View.GONE);
+        new ExceptionHandler(getContext()).onTaskAborted(th);
+    }
+
+    @Override
+    public void onTaskCompleted(PoiOverviewListBean poiOverviewListBean) {
+        fProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onTaskProgress(int percentage) {
+        fProgressBar.setProgress(percentage);
     }
 
     //// loader callbacks
@@ -134,6 +165,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        fThumbnailCache.clearCache();
         this.fDataAdapter.swapCursor(data);
         updateTableVisibility();
     }

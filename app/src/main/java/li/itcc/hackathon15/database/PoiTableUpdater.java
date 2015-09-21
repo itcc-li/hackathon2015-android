@@ -10,6 +10,7 @@ import android.util.Base64;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
 import li.itcc.hackathon15.poilist.ThumbnailCache;
+import li.itcc.hackathon15.util.loading.TaskProgressListener;
 
 /**
  * Created by patrik on 12/09/2015.
@@ -24,17 +25,23 @@ public class PoiTableUpdater  {
         fCache = new ThumbnailCache(context);
     }
 
-    public void updatePoiTable(PoiOverviewListBean listBean) throws Exception {
+    public void updatePoiTable(TaskProgressListener listener, PoiOverviewListBean listBean) throws Exception {
         dbOpenHelper = new PoiDBOpenHelper(fContext);
         SQLiteDatabase dbWrite = dbOpenHelper.getWritableDatabase();
         // delete full table
         dbWrite.execSQL("delete from " + PoiDatabaseConstants.TABLE_POIS);
         fCache.deleteAllThumbnails();
+        listener.onTaskProgress(80);
         List<PoiOverviewBean> list = listBean.getList();
         if (list != null) {
             SQLiteStatement insertStatement = createInsertStatement(dbWrite);
+            int insertCount = listBean.getList().size();
+            int doneInserts = 0;
             for (PoiOverviewBean poi : listBean.getList()) {
                 executeInsert(insertStatement, poi);
+                doneInserts++;
+                int progress = 80 * (20 * doneInserts / insertCount);
+                listener.onTaskProgress(progress);
             }
             insertStatement.close();
         }
