@@ -15,7 +15,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 import li.itcc.hackathon15.ReleaseConfig;
 import li.itcc.hackathon15.services.PoiServices;
-import li.itcc.hackathon15.util.ProgressListener;
+import li.itcc.hackathon15.util.loading.TaskProgressListener;
+import li.itcc.hackathon15.util.StreamUtil;
 
 /**
  * Created by Arthur on 19.09.2015.
@@ -24,10 +25,10 @@ public class ImageUploader {
 
     private static final String BOUNDARY = "ayfQuegbhrmjYtdLwPdsfitergKyhbwjAM25z9AJuGSx7WG9dnD";
     private static final int JUNK_SIZE = 10000;
-    private final ProgressListener fListener;
+    private final TaskProgressListener fListener;
     private final PoiServices fServices;
 
-    public ImageUploader(PoiServices services, ProgressListener listener) {
+    public ImageUploader(PoiServices services, TaskProgressListener listener) {
         fListener = listener;
         fServices = services;
     }
@@ -62,26 +63,21 @@ public class ImageUploader {
         OutputStream outBin = connection.getOutputStream();
         //attach post objects
         DataOutputStream outputStream = new DataOutputStream(outBin);
-        //build the request body
-        outputStream.writeBytes("--" + BOUNDARY + "\r\n" +
-                "Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n" +
-                "Content-Type: image/jpeg\r\n" +
-                "\r\n");
-        long totalUploadSize = fileSize;
-        byte[] buffer = new byte[JUNK_SIZE];
-        long totalBytesWritten = 0;
-        int bytesRead = 0;
-        // read directly from file also in junks
-        while ((bytesRead = inputStream.read(buffer)) > -1) {
-            outputStream.write(buffer, 0, bytesRead);
-            totalBytesWritten += bytesRead;
-            int percentage = (int)(totalBytesWritten * 100L / totalUploadSize);
-            fListener.onProgressChanged(percentage);
+        try {
+            //build the request body
+            outputStream.writeBytes("--" + BOUNDARY + "\r\n" +
+                    "Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n" +
+                    "Content-Type: image/jpeg\r\n" +
+                    "\r\n");
+            long totalUploadSize = fileSize;
+            StreamUtil.pumpAllAndClose(inputStream, outputStream, totalUploadSize, fListener, false);
+            // write final boundary
+            outputStream.writeBytes("\r\n--" + BOUNDARY + "--\r\n");
+            outputStream.flush();
         }
-        // write final boundary
-        outputStream.writeBytes("\r\n--" + BOUNDARY + "--\r\n");
-        outputStream.flush();
-        outputStream.close();
+        finally {
+            outputStream.close();
+        }
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpsURLConnection.HTTP_OK) {
             String response = readResponse(connection);

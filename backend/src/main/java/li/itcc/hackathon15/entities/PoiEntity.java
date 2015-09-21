@@ -16,12 +16,14 @@ public class PoiEntity {
     double latitude;
     String name;
     String description;
+    String imageBlobKey;
     float ratingSum;
     int ratingCount;
     float rating;
     byte[] thumbnail;
     long createTime;
     long updateTime;
+    long imageUpdateTime;
     long commentUpdateTime;
 
     // don't remove this explicit no-arg constructor
@@ -98,6 +100,14 @@ public class PoiEntity {
         this.description = description;
     }
 
+    public String getImageBlobKey() {
+        return imageBlobKey;
+    }
+
+    public void setImageBlobKey(String imageBlobKey) {
+        this.imageBlobKey = imageBlobKey;
+    }
+
     public byte[] getThumbnail() {
         return thumbnail;
     }
@@ -152,5 +162,14 @@ public class PoiEntity {
 
     public void setCommentUpdateTime(long commentUpdateTime) {
         this.commentUpdateTime = commentUpdateTime;
+    }
+
+
+    public long getImageUpdateTime() {
+        return imageUpdateTime;
+    }
+
+    public void setImageUpdateTime(long imageUpdateTime) {
+        this.imageUpdateTime = imageUpdateTime;
     }
 }

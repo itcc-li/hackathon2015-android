@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import li.itcc.hackathon15.poilist.PoiRefresher;
@@ -27,7 +29,19 @@ public class ToastResultListener implements PoiRefresher.RefreshDoneListener {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             th.printStackTrace(pw);
-            Toast.makeText(fContext, "Exception " + th.getClass().getName() + " " + th.getMessage() + "\n" + sw.toString(), Toast.LENGTH_LONG).show();
+            String stack = sw.toString();
+            String text = th.getClass().getName() + " " + th.getMessage() + "\n" + stack;
+
+            AlertDialog alertDialog = new AlertDialog.Builder(fContext).create();
+            alertDialog.setTitle("Fehler");
+            alertDialog.setMessage(text);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
         }
     }
 }

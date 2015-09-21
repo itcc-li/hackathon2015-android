@@ -12,6 +12,8 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
+import com.google.appengine.api.blobstore.BlobInfo;
+import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
@@ -19,7 +21,9 @@ import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.ServingUrlOptions;
 import com.google.appengine.api.images.Transform;
+import com.googlecode.objectify.Key;
 
 import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.entities.PoiEntity;
@@ -64,6 +68,36 @@ public class PoiEndpoint {
         PoiOverviewBean[] list = beans.toArray(new PoiOverviewBean[beans.size()]);
         response.setList(list);
         return response;
+    }
+
+    @ApiMethod(name = "getPoiDetails")
+    public PoiDetailBean getPoiDetails(@Named("poiId") long poiId) {
+        Key<PoiEntity> poiKey = Key.create(PoiEntity.class, poiId);
+        PoiEntity entity = ofy().load().key(poiKey).now();
+        if (entity == null) {
+            return null;
+        }
+        PoiOverviewBean overview = createBean(entity);
+        PoiDetailBean result = new PoiDetailBean();
+        result.setOverview(overview);
+        result.setDescription(entity.getDescription());
+        String imageBlobKey = entity.getImageBlobKey();
+        if (imageBlobKey != null) {
+            BlobKey blobKey = new BlobKey(imageBlobKey);
+            // get blob size
+            BlobInfoFactory blobInfoFactory = new BlobInfoFactory();
+            BlobInfo info = blobInfoFactory.loadBlobInfo(blobKey);
+            result.setImageSize(info.getSize());
+            // create image download url
+            ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
+            ImagesService imageService = ImagesServiceFactory.getImagesService();
+            BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+            String url = imageService.getServingUrl(options);
+            result.setImageUrl(url);
+
+            result.setImageUpdateTime(entity.getImageUpdateTime());
+        }
+        return result;
     }
 
     @ApiMethod(name = "getImageUploadUrl")
@@ -125,10 +159,12 @@ public class PoiEndpoint {
         entity.setLongitude(longitude);
         entity.setName(name);
         entity.setDescription(description);
+        entity.setImageBlobKey(imageBlobKey);
         entity.setThumbnail(thumbNail);
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
         entity.setCommentUpdateTime(now);
+        entity.setImageUpdateTime(now);
         ofy().save().entity(entity).now();
         // 3. create result
         PoiOverviewBean result = createBean(entity);

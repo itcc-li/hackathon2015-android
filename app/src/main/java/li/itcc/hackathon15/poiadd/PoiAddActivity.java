@@ -27,16 +27,16 @@ import android.widget.ProgressBar;
 
 import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.R;
-import li.itcc.hackathon15.ToastResultListener;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
+import li.itcc.hackathon15.util.ExceptionHandler;
 import li.itcc.hackathon15.util.StreamUtil;
 import li.itcc.hackathon15.util.ValidationHelper;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.PoiAddSaveProgressListener {
+public class PoiAddActivity extends AppCompatActivity implements PoiUploader.PoiUploadListener {
     private static final String KEY_LOCATION = "KEY_LOCATION";
     private static final int REQUEST_TAKE_PICTURE = 1;
     private static final int REQUEST_GET_GALLERY_PICTURE = 2;
@@ -157,7 +157,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
             detail.setLongitude(0.0);
             detail.setLatitude(0.0);
         }
-        PoiAddSaver saver = new PoiAddSaver(getApplicationContext(), this);
+        PoiUploader saver = new PoiUploader(getApplicationContext(), this);
         saver.setLocalImageFile(fLocalImageFileCropped);
         fSaveButton.setEnabled(false);
         fProgressBar.setProgress(0);
@@ -170,20 +170,20 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
     }
 
     @Override
-    public void onPoiSaved(PoiOverviewBean newBean) {
+    public void onTaskCompleted(PoiOverviewBean poiOverviewBean) {
         finish();
     }
 
     @Override
-    public void onProgressChanged(int percentage) {
+    public void onTaskProgress(int percentage) {
         fProgressBar.setProgress(percentage);
     }
 
     @Override
-    public void onThrowableOccurred(Throwable th) {
+    public void onTaskAborted(Throwable th) {
         fSaveButton.setEnabled(true);
         fProgressBar.setVisibility(View.INVISIBLE);
-        new ToastResultListener(this).onRefreshDone(th);
+        new ExceptionHandler(this).onTaskAborted(th);
     }
 
     // getting pictures
@@ -329,5 +329,6 @@ public class PoiAddActivity extends AppCompatActivity implements PoiAddSaver.Poi
             startActivityForResult(i, REQUEST_CROP_PICTURE);
         }
     }
+
 
 }
