@@ -5,10 +5,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -24,7 +27,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.R;
@@ -37,7 +47,9 @@ import li.itcc.hackathon15.util.ValidationHelper;
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiAddActivity extends AppCompatActivity implements PoiUploader.PoiUploadListener {
+public class PoiAddActivity extends AppCompatActivity implements PoiUploader.PoiUploadListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+    private DecimalFormat FORMAT_1 = new DecimalFormat("##0.000000");
+    private static final String KEY_LOCATION = "KEY_LOCATION";
     private static final int REQUEST_TAKE_PICTURE = 1;
     private static final int REQUEST_GET_GALLERY_PICTURE = 2;
     private static final int REQUEST_CROP_PICTURE = 3;
@@ -46,7 +58,6 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
     private View fSaveButton;
     private EditText fName;
     private EditText fDescription;
-    private Location fLocation;
     private View fTakePictureButton;
     private ImageView fImage;
     private View fOpenGaleryButton;
@@ -54,6 +65,11 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
     private File fLocalImageFileCropped;
     private View fClearPictureButton;
     private ProgressBar fProgressBar;
+    private GoogleApiClient fGoogleApiClient;
+    private Location fLocation;
+    private boolean fIsShowing;
+    private boolean fIsRegistered;
+    private TextView fLocationText;
 
     public static void start(Activity parent) {
         Intent i = new Intent(parent, PoiAddActivity.class);
@@ -106,6 +122,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
                 onClearPictureClick(v);
             }
         });
+        fLocationText = (TextView)findViewById(R.id.txv_location_text);
         fName = (EditText)findViewById(R.id.etx_name);
         fDescription = (EditText)findViewById(R.id.etx_description);
         fImage = (ImageView)findViewById(R.id.img_image);
@@ -113,7 +130,136 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         fProgressBar.setMax(100);
         fProgressBar.setProgress(0);
         fProgressBar.setVisibility(View.INVISIBLE);
+        buildGoogleApiClient();
+        // restore state
+        if (savedInstanceState != null) {
+            if (savedInstanceState.keySet().contains(KEY_LOCATION)) {
+                fLocation = savedInstanceState.getParcelable(KEY_LOCATION);
+            }
+        }
+        updateLocationUI();
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (fGoogleApiClient.isConnected()) {
+            fGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        setIsShowing(false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setIsShowing(true);
+    }
+
+    private void setIsShowing(boolean isShowing) {
+        if (fIsShowing == isShowing) {
+            return;
+        }
+        fIsShowing = isShowing;
+        updateRegistration();
+    }
+
+    private void updateRegistration() {
+        boolean shouldBeRegistered = fIsShowing && fGoogleApiClient.isConnected();
+        if (fIsRegistered == shouldBeRegistered) {
+            return;
+        }
+        if (shouldBeRegistered) {
+            LocationRequest locationRequest = new LocationRequest();
+            locationRequest.setInterval(10000);
+            locationRequest.setFastestInterval(5000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            LocationServices.FusedLocationApi.requestLocationUpdates(fGoogleApiClient, locationRequest, this);
+            fIsRegistered = true;
+        }
+        else {
+            LocationServices.FusedLocationApi.removeLocationUpdates(fGoogleApiClient, this);
+            fIsRegistered = false;
+        }
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        Context context = this;
+        fGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putParcelable(KEY_LOCATION, fLocation);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    // google api callbacks
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        //Location lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(fGoogleApiClient);
+        //setLocation(lastKnownLocation);
+        updateRegistration();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        setLocation(location);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        updateRegistration();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        updateRegistration();
+    }
+
+    public void setLocation(Location location) {
+        if (location == null) {
+            return;
+        }
+        float newAccuracy = location.getAccuracy();
+        if (newAccuracy == 0.0f || newAccuracy > 50.0f) {
+            return;
+        }
+        fLocation = location;
+        updateLocationUI();
+    }
+
+    private void updateLocationUI() {
+        if (fLocation == null) {
+            fLocationText.setText(R.string.txt_your_location_gets_determined);
+        }
+        else {
+            String latitude = FORMAT_1.format(fLocation.getLatitude());
+            String longitude = FORMAT_1.format(fLocation.getLongitude());
+            String distance = Integer.toString((int)fLocation.getAccuracy());
+            String text = getString(R.string.txt_lat_long_precision);
+            text = MessageFormat.format(text, latitude, longitude, distance);
+            fLocationText.setText(text);
+        }
+    }
+
+
+    // picture stuff
+
 
     private void onClearPictureClick(View v) {
         fLocalImageFileOriginal.delete();
@@ -150,15 +296,8 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         PoiCreateBean detail = new PoiCreateBean();
         detail.setPoiName(poiName);
         detail.setPoiDescription(poiDescription);
-        if (fLocation != null) {
-            detail.setLatitude(fLocation.getLatitude());
-            detail.setLongitude(fLocation.getLongitude());
-        }
-        else {
-            // TODO long lat must be defined
-            detail.setLongitude(0.0);
-            detail.setLatitude(0.0);
-        }
+        detail.setLatitude(fLocation.getLatitude());
+        detail.setLongitude(fLocation.getLongitude());
         PoiUploader saver = new PoiUploader(getApplicationContext(), this);
         saver.setLocalImageFile(fLocalImageFileCropped);
         fSaveButton.setEnabled(false);
@@ -187,6 +326,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         fProgressBar.setVisibility(View.INVISIBLE);
         new ExceptionHandler(this).onTaskAborted(th);
     }
+
 
     // getting pictures
 
@@ -331,6 +471,5 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
             startActivityForResult(i, REQUEST_CROP_PICTURE);
         }
     }
-
 
 }

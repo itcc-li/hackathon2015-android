@@ -213,6 +213,8 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         fDataAdapter.notifyDataSetChanged();
     }
 
+    // google api callbacks
+
     @Override
     public void onConnected(Bundle bundle) {
         Location lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(fGoogleApiClient);
