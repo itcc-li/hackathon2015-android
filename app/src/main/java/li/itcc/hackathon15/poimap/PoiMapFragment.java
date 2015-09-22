@@ -17,6 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -28,23 +31,20 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.database.DatabaseContract;
-import li.itcc.hackathon15.gps.GPSDeliverer;
-import li.itcc.hackathon15.gps.GPSLocationListener;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiMapFragment extends SupportMapFragment implements GPSLocationListener, LoaderManager.LoaderCallbacks<Cursor>,PoiAddOnClickListener.LocationProvider {
+public class PoiMapFragment extends SupportMapFragment implements LoaderManager.LoaderCallbacks<Cursor>, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    private static final String KEY_LOCATION_ZOOM_DONE = "KEY_LOCATION_ZOOM_DONE";
     private GoogleMap fMap;
-    private int fFunction;
-    private GPSDeliverer fGpsDeliverer;
-    private int fPointCounter;
-    private Marker fMarker;
     private HashMap<Marker, Long> fMarkers = new HashMap<>();
     private View fCreateButton;
     private Location fLocation;
+    private boolean fLocationZoomDone = false;
+    private GoogleApiClient fGoogleApiClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +54,9 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            fLocationZoomDone = savedInstanceState.getBoolean(KEY_LOCATION_ZOOM_DONE);
+        }
         View v = super.onCreateView(inflater, container, savedInstanceState);
         // trick: we have to add a floating button so we add an extra layer
         container.removeView(v);
@@ -64,16 +67,60 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
                 onClick(marker);
             }
         });
+        //fMap.setMyLocationEnabled(true);
         View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
         FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
-        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
-        // we have to wait for the current location.
-        fCreateButton.setVisibility(View.VISIBLE);
+        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         container.removeView(v);
         frame.addView(v, params);
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof TitleHolder) {
+            ((TitleHolder)context).setTitleId(R.string.title_overview_map);
+        }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // start loading
+        buildGoogleApiClient();
+        getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (fGoogleApiClient.isConnected()) {
+            fGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_LOCATION_ZOOM_DONE, fLocationZoomDone);
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        Context context = getContext();
+        fGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     private boolean onClick(Marker marker) {
@@ -93,27 +140,23 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         return super.onOptionsItemSelected(item);
     }
 
+    // google api client
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof TitleHolder) {
-            ((TitleHolder)context).setTitleId(R.string.title_overview_map);
-        }
+    public void onConnected(Bundle bundle) {
+        Location lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(fGoogleApiClient);
+        setLocation(lastKnownLocation);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(0, null, this);
-        fGpsDeliverer = new GPSDeliverer(getActivity(), 0L);
-        fGpsDeliverer.setListener(this);
-        fGpsDeliverer.setAutoReset(false);
-        fGpsDeliverer.startDelivery();
+    public void onConnectionSuspended(int i) {
     }
 
     @Override
-    public void onLocation(Location location) {
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
+
+    public void setLocation(Location location) {
         if (location == null) {
             return;
         }
@@ -121,38 +164,13 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
             return;
         }
         fLocation = location;
-        fCreateButton.setVisibility(View.VISIBLE);
-        LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
-        String title = getResources().getString(R.string.my_location);
-        fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.5f));
-        if (fMarker == null) {
-            fMarker = fMap.addMarker(new MarkerOptions()
-                    .title(title)
-                    .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.my_pin)));
+        if (!fLocationZoomDone) {
+            // only zoom once
+            LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
+            String title = getResources().getString(R.string.my_location);
+            fMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 11.5f));
+            fLocationZoomDone = true;
         }
-        else {
-            fMarker.setPosition(loc);
-            fMarker.setTitle(title);
-        }
-        if (fGpsDeliverer != null) {
-            fGpsDeliverer.stopDelivery();
-            fGpsDeliverer = null;
-        }
-    }
-
-    @Override
-    public void onLocationSensorSearching() {
-
-    }
-
-    @Override
-    public void onLocationSensorEnabled() {
-
-    }
-
-    @Override
-    public void onLocationSensorDisabled() {
-
     }
 
     @Override
@@ -196,7 +214,7 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     }
 
     private void clearAllMarkers() {
-        for (Marker marker: fMarkers.keySet()) {
+        for (Marker marker : fMarkers.keySet()) {
             marker.remove();
         }
         fMarkers.clear();
@@ -206,11 +224,5 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
-
-    @Override
-    public Location getLocation() {
-        return fLocation;
-    }
-
 
 }

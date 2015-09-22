@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.R;
@@ -37,7 +38,6 @@ import li.itcc.hackathon15.util.ValidationHelper;
  * Created by Arthur on 12.09.2015.
  */
 public class PoiAddActivity extends AppCompatActivity implements PoiUploader.PoiUploadListener {
-    private static final String KEY_LOCATION = "KEY_LOCATION";
     private static final int REQUEST_TAKE_PICTURE = 1;
     private static final int REQUEST_GET_GALLERY_PICTURE = 2;
     private static final int REQUEST_CROP_PICTURE = 3;
@@ -55,9 +55,8 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
     private View fClearPictureButton;
     private ProgressBar fProgressBar;
 
-    public static void start(Activity parent, Location location) {
+    public static void start(Activity parent) {
         Intent i = new Intent(parent, PoiAddActivity.class);
-        i.putExtra(KEY_LOCATION, location);
         parent.startActivityForResult(i, 0);
     }
 
@@ -72,7 +71,6 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
             fLocalImageFileCropped.delete();
         }
         setContentView(R.layout.poi_add_activity);
-        fLocation = getIntent().getExtras().getParcelable(KEY_LOCATION);
         fCancelButton = findViewById(R.id.btn_cancel);
         fCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,6 +141,10 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         String poiName = vh.validateText(fName, PoiConstants.POI_NAME_LENGTH_MIN, PoiConstants.POI_NAME_LENGTH_MAX);
         String poiDescription = vh.validateText(fDescription, PoiConstants.POI_COMMENT_LENGTH_MAX);
         if (vh.hasErrors()) {
+            return;
+        }
+        if (fLocation == null) {
+            Toast.makeText(this, R.string.txt_location_missing, Toast.LENGTH_LONG).show();
             return;
         }
         PoiCreateBean detail = new PoiCreateBean();

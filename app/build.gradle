@@ -46,13 +46,11 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     // latest version see http://developer.android.com/tools/support-library/index.html#revisions
     // see https://developers.google.com/android/guides/setup
-    // Class plus is missing, use full play services lib
-    //compile 'com.google.android.gms:play-services:7.8.0'
-
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:design:23.0.1'
     compile 'com.google.android.gms:play-services-maps:7.8.0'
-    compile 'com.google.android.gms:play-services-identity:7.8.0'
-    compile 'com.google.android.gms:play-services-plus:7.8.0'
+    compile 'com.google.android.gms:play-services-location:7.8.0'
+    //compile 'com.google.android.gms:play-services-identity:7.8.0'
+    //compile 'com.google.android.gms:play-services-plus:7.8.0'
     compile project(path: ':backend', configuration: 'android-endpoints')
 }

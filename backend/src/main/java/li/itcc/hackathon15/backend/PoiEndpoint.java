@@ -125,7 +125,7 @@ public class PoiEndpoint {
             throw new IllegalArgumentException("Bad latitude " + latitude);
         }
         double longitude = request.getLongitude();
-        if (longitude < 0.0 || longitude > 360.0) {
+        if (longitude < -180.0 || longitude > 180.0) {
             throw new IllegalArgumentException("Bad longitude " + longitude);
         }
         String name = request.getPoiName();

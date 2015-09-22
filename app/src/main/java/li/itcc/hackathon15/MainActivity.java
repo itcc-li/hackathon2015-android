@@ -78,7 +78,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(int position, boolean fromSavedInstanceState) {
+        if (fromSavedInstanceState) {
+            return;
+        }
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment newFragment;

@@ -25,12 +25,14 @@ import android.widget.ProgressBar;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
 import li.itcc.hackathon15.database.DatabaseContract;
-import li.itcc.hackathon15.gps.GPSDeliverer;
-import li.itcc.hackathon15.gps.GPSLocationListener;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
 import li.itcc.hackathon15.util.ExceptionHandler;
@@ -39,7 +41,7 @@ import li.itcc.hackathon15.util.ExceptionHandler;
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, PoiAddOnClickListener.LocationProvider, GPSLocationListener, PoiListLoader.PoiListLoaderListener {
+public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, PoiListLoader.PoiListLoaderListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private DecimalFormat FORMAT_0 = new DecimalFormat("#,##0");
     private DecimalFormat FORMAT_1 = new DecimalFormat("#,##0.0");
     private PoiCursorAdapter fDataAdapter;
@@ -47,9 +49,9 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     private TextView fEmptyText;
     private View fCreateButton;
     private Location fLocation;
-    private GPSDeliverer fGpsDeliverer;
     private ThumbnailCache fThumbnailCache;
     private ProgressBar fProgressBar;
+    private GoogleApiClient fGoogleApiClient;
 
     public PoiListFragment() {
     }
@@ -68,7 +70,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         fListView = (ListView) rootView.findViewById(android.R.id.list);
         fEmptyText = (TextView) rootView.findViewById(android.R.id.empty);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
-        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
+        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
         fProgressBar = (ProgressBar)rootView.findViewById(R.id.prb_progress);
         fProgressBar.setMax(100);
         fProgressBar.setVisibility(View.GONE);
@@ -84,11 +86,12 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         return rootView;
     }
 
-
-    private void onListItemClick(int position, long id) {
-        Cursor c = (Cursor)fDataAdapter.getItem(position);
-        long poiId = c.getLong(c.getColumnIndex(DatabaseContract.Pois.POI_ID));
-        PoiDetailActivity.start(getActivity(), poiId);
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof TitleHolder) {
+            ((TitleHolder) context).setTitleId(R.string.title_poi_list);
+        }
     }
 
     @Override
@@ -97,11 +100,37 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         // Indicate that this fragment would like to influence the set of actions in the action bar.
         setHasOptionsMenu(true);
         // start loading
+        buildGoogleApiClient();
         getLoaderManager().initLoader(0, null, this);
-        fGpsDeliverer = new GPSDeliverer(getActivity(), 0L);
-        fGpsDeliverer.setListener(this);
-        fGpsDeliverer.setAutoReset(false);
-        fGpsDeliverer.startDelivery();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (fGoogleApiClient.isConnected()) {
+            fGoogleApiClient.disconnect();
+        }
+    }
+
+    private void onListItemClick(int position, long id) {
+        Cursor c = (Cursor)fDataAdapter.getItem(position);
+        long poiId = c.getLong(c.getColumnIndex(DatabaseContract.Pois.POI_ID));
+        PoiDetailActivity.start(getActivity(), poiId);
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        Context context = getContext();
+        fGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     @Override
@@ -171,25 +200,12 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof TitleHolder) {
-            ((TitleHolder) context).setTitleId(R.string.title_poi_list);
-        }
-    }
-
-    @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         this.fDataAdapter.swapCursor(null);
     }
 
-    @Override
-    public Location getLocation() {
-        return fLocation;
-    }
 
-    @Override
-    public void onLocation(Location location) {
+    public void setLocation(Location location) {
         if (location == null) {
             return;
         }
@@ -198,17 +214,18 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
-    public void onLocationSensorSearching() {
+    public void onConnected(Bundle bundle) {
+        Location lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(fGoogleApiClient);
+        setLocation(lastKnownLocation);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
 
     }
 
     @Override
-    public void onLocationSensorEnabled() {
-
-    }
-
-    @Override
-    public void onLocationSensorDisabled() {
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 
