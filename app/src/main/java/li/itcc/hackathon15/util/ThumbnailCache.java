@@ -1,4 +1,4 @@
-package li.itcc.hackathon15.poilist;
+package li.itcc.hackathon15.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;

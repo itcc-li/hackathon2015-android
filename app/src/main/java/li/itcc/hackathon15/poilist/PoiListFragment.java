@@ -36,6 +36,7 @@ import li.itcc.hackathon15.database.DatabaseContract;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
 import li.itcc.hackathon15.util.ExceptionHandler;
+import li.itcc.hackathon15.util.ThumbnailCache;
 
 
 /**

@@ -7,6 +7,11 @@ import java.net.URL;
  * Created by Arthur on 17.09.2015.
  */
 public class ReleaseConfig {
+    // see https://cloud.google.com/datastore/docs/tools/devserver
+    // maybe use env variable DATASTORE_HOST for that
+    //
+    // and see also JVM argument -Ddatastore.backing_store="D:\Temp\local_db.bin"
+
     private static final String DEBUG_SERVER = "192.168.160.2";
     public static final String URL = "http://" + DEBUG_SERVER + ":8080";
 

@@ -9,7 +9,7 @@ import android.util.Base64;
 
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
-import li.itcc.hackathon15.poilist.ThumbnailCache;
+import li.itcc.hackathon15.util.ThumbnailCache;
 import li.itcc.hackathon15.util.loading.TaskProgressListener;
 
 /**

@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,13 +36,14 @@ import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.database.DatabaseContract;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
+import li.itcc.hackathon15.util.ThumbnailCache;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
 public class PoiMapFragment extends SupportMapFragment implements LoaderManager.LoaderCallbacks<Cursor>, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String KEY_LOCATION_ZOOM_DONE = "KEY_LOCATION_ZOOM_DONE";
-    private GoogleMap fMap;
+    private GoogleMap fGoogleMap;
     private HashMap<Marker, Long> fMarkers = new HashMap<>();
     private View fCreateButton;
     private Location fLocation;
@@ -60,16 +64,17 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
         View v = super.onCreateView(inflater, container, savedInstanceState);
         // trick: we have to add a floating button so we add an extra layer
         container.removeView(v);
-        fMap = getMap();
-        fMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+        fGoogleMap = getMap();
+        fGoogleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
                 onClick(marker);
             }
         });
-        fMap.getUiSettings().setMapToolbarEnabled(false);
-        fMap.getUiSettings().setMyLocationButtonEnabled(false);
-        //fMap.setMyLocationEnabled(true);
+        fGoogleMap.setInfoWindowAdapter(new PoiInfoWindowAdapter());
+        fGoogleMap.getUiSettings().setMapToolbarEnabled(false);
+        fGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+        //fGoogleMap.setMyLocationEnabled(true);
         View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
         FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
@@ -170,8 +175,7 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
         if (!fLocationZoomDone) {
             // only zoom once
             LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
-            String title = getResources().getString(R.string.my_location);
-            fMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 11.5f));
+            fGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 11.5f));
             fLocationZoomDone = true;
         }
     }
@@ -206,7 +210,7 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
                 String shortDescr = data.getString(descrCol);
                 long id = data.getLong(idCol);
                 LatLng loc = new LatLng(latitude, longitude);
-                Marker marker = fMap.addMarker(new MarkerOptions()
+                Marker marker = fGoogleMap.addMarker(new MarkerOptions()
                         .title(name)
                         .snippet(shortDescr)
                         .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.poi_pin)));
@@ -217,9 +221,10 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
     }
 
     private void clearAllMarkers() {
-        for (Marker marker : fMarkers.keySet()) {
-            marker.remove();
-        }
+        //for (Marker marker : fMarkers.keySet()) {
+        //    marker.remove();
+        //}
+        fGoogleMap.clear();
         fMarkers.clear();
     }
 
@@ -228,4 +233,50 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
 
     }
 
+    public class PoiInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        private ThumbnailCache fCache;
+        private View fView;
+        private ImageView fImage;
+        private TextView fName;
+        private TextView fDescription;
+
+
+        public PoiInfoWindowAdapter() {
+            fCache = new ThumbnailCache(getContext());
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            Long id = fMarkers.get(marker);
+            if (id == null) {
+                return null;
+            }
+            Bitmap bitmap = fCache.getBitmap(id.longValue());
+            if (bitmap == null) {
+                return null;
+            }
+            if (fView == null) {
+                fView = getLayoutInflater(null).inflate(R.layout.map_info_window, null);
+                fImage = (ImageView)fView.findViewById(R.id.imv_thumbnail);
+                fName = (TextView)fView.findViewById(R.id.txv_poi_name);
+                fDescription = (TextView)fView.findViewById(R.id.txv_description);
+            }
+            fImage.setImageBitmap(bitmap);
+            fName.setText(marker.getTitle());
+            String snippet = marker.getSnippet();
+            if (snippet == null || snippet.length() == 0) {
+                fDescription.setVisibility(View.GONE);
+            }
+            else {
+                fDescription.setText(snippet);
+                fDescription.setVisibility(View.VISIBLE);
+            }
+            return fView;
+        }
+    }
 }
