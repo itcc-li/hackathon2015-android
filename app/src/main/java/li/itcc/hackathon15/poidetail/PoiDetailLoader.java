@@ -6,7 +6,6 @@ import java.net.URL;
 
 import android.content.Context;
 
-import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.ReleaseConfig;
 import li.itcc.hackathon15.backend.poiApi.model.PoiDetailBean;
 import li.itcc.hackathon15.services.PoiServices;
@@ -42,7 +41,7 @@ public class PoiDetailLoader {
         @Override
         protected PoiDetailBean doInBackgroundOrThrow(Long... params) throws Exception {
             Long param = params[0];
-            PoiServices poiServices = new PoiServices(fContext, PoiConstants.URL);
+            PoiServices poiServices = new PoiServices(fContext, ReleaseConfig.URL);
             PoiDetailBean detail = poiServices.getPoiDetails(params[0].longValue());
             // load image if available
             String imageUrl = detail.getImageUrl();

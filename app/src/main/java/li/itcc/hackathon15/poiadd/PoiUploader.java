@@ -5,7 +5,7 @@ import java.io.RandomAccessFile;
 
 import android.content.Context;
 
-import li.itcc.hackathon15.PoiConstants;
+import li.itcc.hackathon15.ReleaseConfig;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.database.PoiTableUpdater;
@@ -49,7 +49,7 @@ public class PoiUploader {
             RandomAccessFile r = null;
             try {
                 PoiCreateBean param = params[0];
-                PoiServices poiServices = new PoiServices(fContext, PoiConstants.URL);
+                PoiServices poiServices = new PoiServices(fContext, ReleaseConfig.URL);
                 // 1. upload the image file and get blob key
                 File imageFile = fLocalImageFile;
                 ImageUploader uploader = new ImageUploader(poiServices, this);

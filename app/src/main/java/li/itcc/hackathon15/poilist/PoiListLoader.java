@@ -2,7 +2,7 @@ package li.itcc.hackathon15.poilist;
 
 import android.content.Context;
 
-import li.itcc.hackathon15.PoiConstants;
+import li.itcc.hackathon15.ReleaseConfig;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
 import li.itcc.hackathon15.database.PoiTableUpdater;
 import li.itcc.hackathon15.services.PoiOverviewQuery;
@@ -38,7 +38,7 @@ public class PoiListLoader {
 
         @Override
         protected PoiOverviewListBean doInBackgroundOrThrow(Void... params) throws Exception {
-            PoiServices poiServices = new PoiServices(fContext, PoiConstants.URL);
+            PoiServices poiServices = new PoiServices(fContext, ReleaseConfig.URL);
             PoiOverviewQuery q = new PoiOverviewQuery();
             PoiOverviewListBean listBean = poiServices.getPoiList(q);
             onTaskProgress(70);
