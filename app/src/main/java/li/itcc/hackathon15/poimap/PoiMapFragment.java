@@ -67,11 +67,14 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
                 onClick(marker);
             }
         });
+        fMap.getUiSettings().setMapToolbarEnabled(false);
+        fMap.getUiSettings().setMyLocationButtonEnabled(false);
         //fMap.setMyLocationEnabled(true);
         View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
         FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
         fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
+        //fCreateButton.setVisibility(View.GONE);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         container.removeView(v);
         frame.addView(v, params);

@@ -71,8 +71,10 @@ public class PoiTableUpdater  {
         insertStatement.bindDouble(5, poi.getLatitude());
         insertStatement.execute();
         String thumbnail = poi.getThumbnailBase64();
-        byte[] thumbnailData = android.util.Base64.decode(thumbnail, Base64.DEFAULT);
-        fCache.storeBitmap(poi.getPoiId(), thumbnailData);
+        if (thumbnail != null && thumbnail.length() > 0) {
+            byte[] thumbnailData = android.util.Base64.decode(thumbnail, Base64.DEFAULT);
+            fCache.storeBitmap(poi.getPoiId(), thumbnailData);
+        }
     }
 
     private SQLiteStatement createInsertStatement(SQLiteDatabase dbWrite) {
