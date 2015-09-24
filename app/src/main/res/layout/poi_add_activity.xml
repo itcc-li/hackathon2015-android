@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/poi_pin"/>
+                android:src="@drawable/ic_location_48dp"/>
 
             <TextView
                 android:id="@+id/txv_location_text"

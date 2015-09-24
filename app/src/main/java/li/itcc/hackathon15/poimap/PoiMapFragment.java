@@ -26,6 +26,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -62,8 +63,6 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
             fLocationZoomDone = savedInstanceState.getBoolean(KEY_LOCATION_ZOOM_DONE);
         }
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        // trick: we have to add a floating button so we add an extra layer
-        container.removeView(v);
         fGoogleMap = getMap();
         fGoogleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
@@ -71,19 +70,26 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
                 onClick(marker);
             }
         });
+        fGoogleMap.setMyLocationEnabled(true);
         fGoogleMap.setInfoWindowAdapter(new PoiInfoWindowAdapter());
-        fGoogleMap.getUiSettings().setMapToolbarEnabled(false);
-        fGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
-        //fGoogleMap.setMyLocationEnabled(true);
-        View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
-        FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
-        fCreateButton = rootView.findViewById(R.id.viw_add_button);
-        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
-        //fCreateButton.setVisibility(View.GONE);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        container.removeView(v);
-        frame.addView(v, params);
-        return rootView;
+        UiSettings setting = fGoogleMap.getUiSettings();
+        setting.setMapToolbarEnabled(false);
+        setting.setMyLocationButtonEnabled(true);
+        // trick: we have to add a floating button so we add an extra layer
+        boolean addButton = false;
+        if (addButton) {
+            container.removeView(v);
+            View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
+            FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
+            fCreateButton = rootView.findViewById(R.id.viw_add_button);
+            fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
+            fCreateButton.setVisibility(View.GONE);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            container.removeView(v);
+            frame.addView(v, params);
+            return rootView;
+        }
+        return v;
     }
 
     @Override
@@ -213,7 +219,7 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
                 Marker marker = fGoogleMap.addMarker(new MarkerOptions()
                         .title(name)
                         .snippet(shortDescr)
-                        .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.poi_pin)));
+                        .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_48dp)));
                 fMarkers.put(marker, new Long(id));
             } while (data.moveToNext());
 
