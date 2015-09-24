@@ -13,6 +13,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,6 +74,7 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
         });
         fGoogleMap.setMyLocationEnabled(true);
         fGoogleMap.setInfoWindowAdapter(new PoiInfoWindowAdapter());
+        fGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         UiSettings setting = fGoogleMap.getUiSettings();
         setting.setMapToolbarEnabled(false);
         setting.setMyLocationButtonEnabled(true);
@@ -101,11 +104,35 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.poi_map, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_satellite) {
+            if (item.isChecked()) {
+                item.setChecked(false);
+                fGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            }
+            else {
+                item.setChecked(true);
+                fGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // start loading
         buildGoogleApiClient();
         getLoaderManager().initLoader(0, null, this);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -143,15 +170,6 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
             PoiDetailActivity.start(getActivity(), id.longValue());
         }
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //if (item.getItemId() == R.id.action_example) {
-        //    exampleAction();
-        //    return true;
-        //}
-        return super.onOptionsItemSelected(item);
     }
 
     // google api client
