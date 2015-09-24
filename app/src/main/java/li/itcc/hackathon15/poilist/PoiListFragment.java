@@ -167,7 +167,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onTaskAborted(Throwable th) {
         fProgressBar.setVisibility(View.GONE);
-        new ExceptionHandler(getContext()).onTaskAborted(th);
+        new ExceptionHandler(getActivity()).onTaskAborted(th);
     }
 
     @Override
