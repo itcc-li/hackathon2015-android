@@ -128,6 +128,9 @@ public class PoiEndpoint {
         if (longitude < -180.0 || longitude > 180.0) {
             throw new IllegalArgumentException("Bad longitude " + longitude);
         }
+        Double exactLatitude = request.getExactLatitude();
+        Double exactLongitude = request.getExactLongitude();
+        // TODO: check distance of Exact coordinates
         String name = request.getPoiName();
         if (name == null) {
             throw new NullPointerException("Name must not be null");
@@ -157,6 +160,8 @@ public class PoiEndpoint {
         PoiEntity entity = new PoiEntity();
         entity.setLatitude(latitude);
         entity.setLongitude(longitude);
+        entity.setExactLatitude(exactLatitude);
+        entity.setExactLongitude(exactLongitude);
         entity.setName(name);
         entity.setDescription(description);
         entity.setImageBlobKey(imageBlobKey);
@@ -176,8 +181,16 @@ public class PoiEndpoint {
     private PoiOverviewBean createBean(PoiEntity entity) {
         PoiOverviewBean result = new PoiOverviewBean();
         result.setPoiId(entity.getId());
-        result.setLatitude(entity.getLatitude());
-        result.setLongitude(entity.getLongitude());
+        Double exactLatitude = entity.getExactLatitude();
+        Double exactLongitude = entity.getExactLongitude();
+        if (exactLatitude != null && exactLongitude != null) {
+            result.setLatitude(exactLatitude);
+            result.setLongitude(exactLongitude);
+        }
+        else {
+            result.setLatitude(entity.getLatitude());
+            result.setLongitude(entity.getLongitude());
+        }
         result.setPoiName(entity.getName());
         result.setShortPoiDescription(entity.getShortDescription());
         result.setRating(entity.getRating());

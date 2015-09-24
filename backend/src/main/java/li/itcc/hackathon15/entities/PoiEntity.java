@@ -14,6 +14,8 @@ public class PoiEntity {
     Long id;
     double longitude;
     double latitude;
+    Double exactLongitude;
+    Double exactLatitude;
     String name;
     String description;
     String imageBlobKey;
@@ -171,5 +173,21 @@ public class PoiEntity {
 
     public void setImageUpdateTime(long imageUpdateTime) {
         this.imageUpdateTime = imageUpdateTime;
+    }
+
+    public Double getExactLongitude() {
+        return exactLongitude;
+    }
+
+    public void setExactLongitude(Double exactLongitude) {
+        this.exactLongitude = exactLongitude;
+    }
+
+    public Double getExactLatitude() {
+        return exactLatitude;
+    }
+
+    public void setExactLatitude(Double exactLatitude) {
+        this.exactLatitude = exactLatitude;
     }
 }

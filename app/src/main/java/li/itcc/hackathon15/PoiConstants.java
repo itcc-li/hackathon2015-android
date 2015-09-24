@@ -8,4 +8,6 @@ public class PoiConstants {
     public static final int POI_NAME_LENGTH_MAX = 100;
     public static final int POI_COMMENT_LENGTH_MAX = 4000;
 
+    public static final int FINE_LOCATION_MAX_RADIUS = 30;
+
 }

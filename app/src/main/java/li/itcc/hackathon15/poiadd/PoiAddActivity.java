@@ -40,6 +40,7 @@ import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
+import li.itcc.hackathon15.exactlocation.ExactLocationActivity;
 import li.itcc.hackathon15.util.ExceptionHandler;
 import li.itcc.hackathon15.util.StreamUtil;
 import li.itcc.hackathon15.util.ValidationHelper;
@@ -50,9 +51,11 @@ import li.itcc.hackathon15.util.ValidationHelper;
 public class PoiAddActivity extends AppCompatActivity implements PoiUploader.PoiUploadListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     private DecimalFormat FORMAT_1 = new DecimalFormat("##0.000000");
     private static final String KEY_LOCATION = "KEY_LOCATION";
+    private static final String KEY_EXACT_LOCATION = "KEY_EXACT_LOCATION";
     private static final int REQUEST_TAKE_PICTURE = 1;
     private static final int REQUEST_GET_GALLERY_PICTURE = 2;
     private static final int REQUEST_CROP_PICTURE = 3;
+    private static final int REQUEST_EXACT_LOCATION = 4;
     public static final int FINAL_PICTURE_SIZE = 1080;
     private View fCancelButton;
     private View fSaveButton;
@@ -67,9 +70,11 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
     private ProgressBar fProgressBar;
     private GoogleApiClient fGoogleApiClient;
     private Location fLocation;
+    private Location fExactLocation;
     private boolean fIsShowing;
     private boolean fIsRegistered;
     private TextView fLocationText;
+    private View fExactLocationButton;
 
     public static void start(Activity parent) {
         Intent i = new Intent(parent, PoiAddActivity.class);
@@ -122,6 +127,13 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
                 onClearPictureClick(v);
             }
         });
+        fExactLocationButton = findViewById(R.id.viw_location_panel);
+        fExactLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onExactLocationClick(v);
+            }
+        });
         fLocationText = (TextView)findViewById(R.id.txv_location_text);
         fName = (EditText)findViewById(R.id.etx_name);
         fDescription = (EditText)findViewById(R.id.etx_description);
@@ -133,9 +145,8 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         buildGoogleApiClient();
         // restore state
         if (savedInstanceState != null) {
-            if (savedInstanceState.keySet().contains(KEY_LOCATION)) {
-                fLocation = savedInstanceState.getParcelable(KEY_LOCATION);
-            }
+            fLocation = savedInstanceState.getParcelable(KEY_LOCATION);
+            fExactLocation = savedInstanceState.getParcelable(KEY_EXACT_LOCATION);
         }
         updateLocationUI();
     }
@@ -204,6 +215,7 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
 
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putParcelable(KEY_LOCATION, fLocation);
+        savedInstanceState.putParcelable(KEY_EXACT_LOCATION, fExactLocation);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -248,18 +260,29 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
             fLocationText.setText(R.string.txt_your_location_gets_determined);
         }
         else {
-            String latitude = FORMAT_1.format(fLocation.getLatitude());
-            String longitude = FORMAT_1.format(fLocation.getLongitude());
-            String distance = Integer.toString((int)fLocation.getAccuracy());
+            Location loc = fLocation;
+            if (fExactLocation != null) {
+                loc = fExactLocation;
+            }
+            String latitude = FORMAT_1.format(loc.getLatitude());
+            String longitude = FORMAT_1.format(loc.getLongitude());
+            String distance = Integer.toString((int)loc.getAccuracy());
             String text = getString(R.string.txt_lat_long_precision);
             text = MessageFormat.format(text, latitude, longitude, distance);
             fLocationText.setText(text);
         }
     }
 
+    //
+
+    private void onExactLocationClick(View v) {
+        if (fLocation == null) {
+            return;
+        }
+        ExactLocationActivity.start(this, fLocation, fExactLocation, REQUEST_EXACT_LOCATION);
+    }
 
     // picture stuff
-
 
     private void onClearPictureClick(View v) {
         fLocalImageFileOriginal.delete();
@@ -281,6 +304,9 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         takePicture();
     }
 
+
+
+
     private void onSaveClick(View v) {
         // validate input
         ValidationHelper vh = new ValidationHelper(this);
@@ -298,6 +324,10 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         detail.setPoiDescription(poiDescription);
         detail.setLatitude(fLocation.getLatitude());
         detail.setLongitude(fLocation.getLongitude());
+        if (fExactLocation != null) {
+            detail.setExactLatitude(fExactLocation.getLatitude());
+            detail.setExactLongitude(fExactLocation.getLongitude());
+        }
         PoiUploader saver = new PoiUploader(getApplicationContext(), this);
         saver.setLocalImageFile(fLocalImageFileCropped);
         fSaveButton.setEnabled(false);
@@ -363,6 +393,10 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
                 }
                 else if (requestCode == REQUEST_CROP_PICTURE) {
                     updateImagePreview();
+                }
+                else if (requestCode == REQUEST_EXACT_LOCATION) {
+                    fExactLocation = data.getExtras().getParcelable(ExactLocationActivity.RESULT_KEY);
+                    updateLocationUI();
                 }
             }
             catch (IOException x) {

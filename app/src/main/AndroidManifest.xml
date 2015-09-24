@@ -30,6 +30,7 @@
         </activity>
         <activity android:name=".poiadd.PoiAddActivity" />
         <activity android:name=".poidetail.PoiDetailActivity" />
+        <activity android:name=".exactlocation.ExactLocationActivity" />
 
         <provider
             android:name=".database.PoiContentProvider"

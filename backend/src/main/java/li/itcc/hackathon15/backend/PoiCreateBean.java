@@ -6,6 +6,8 @@ package li.itcc.hackathon15.backend;
 public class PoiCreateBean {
     private double longitude;
     private double latitude;
+    private Double exactLongitude;
+    private Double exactLatitude;
     private String poiName;
     private String poiDescription;
     private String imageBlobKey;
@@ -48,5 +50,21 @@ public class PoiCreateBean {
 
     public void setImageBlobKey(String imageBlobKey) {
         this.imageBlobKey = imageBlobKey;
+    }
+
+    public Double getExactLongitude() {
+        return exactLongitude;
+    }
+
+    public void setExactLongitude(Double exactLongitude) {
+        this.exactLongitude = exactLongitude;
+    }
+
+    public Double getExactLatitude() {
+        return exactLatitude;
+    }
+
+    public void setExactLatitude(Double exactLatitude) {
+        this.exactLatitude = exactLatitude;
     }
 }

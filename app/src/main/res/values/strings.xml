@@ -65,6 +65,8 @@ Thomas Elsensohn
     <string name="txt_location_missing">Speichern nicht möglich, Ihr Standort konnte noch nicht lokalisiert werden.</string>
     <string name="txt_your_location_gets_determined">Ihre Position wird ermittelt...</string>
     <string name="txt_lat_long_precision">{0} N, {1} O\nGenauigkeit: {2} m</string>
+    <string name="txt_drag_me">Drag me</string>
+    <string name="txt_drag_me_snippet">Define exact location\nby dragging</string>
 
 
 </resources>
