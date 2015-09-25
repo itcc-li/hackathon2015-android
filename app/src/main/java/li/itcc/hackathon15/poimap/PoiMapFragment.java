@@ -72,7 +72,7 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
                 onClick(marker);
             }
         });
-        fGoogleMap.setMyLocationEnabled(true);
+        fGoogleMap.setMyLocationEnabled(false);
         fGoogleMap.setInfoWindowAdapter(new PoiInfoWindowAdapter());
         fGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         UiSettings setting = fGoogleMap.getUiSettings();
@@ -119,6 +119,17 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
             else {
                 item.setChecked(true);
                 fGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            }
+            return true;
+        }
+        else if (item.getItemId() == R.id.action_my_location) {
+            if (item.isChecked()) {
+                item.setChecked(false);
+                fGoogleMap.setMyLocationEnabled(false);
+            }
+            else {
+                item.setChecked(true);
+                fGoogleMap.setMyLocationEnabled(true);
             }
             return true;
         }

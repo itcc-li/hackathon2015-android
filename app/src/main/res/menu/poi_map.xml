@@ -8,4 +8,11 @@
         android:title="@string/txt_satellite"
         android:checkable="true"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_my_location"
+        android:orderInCategory="80"
+        android:title="@string/txt_my_location"
+        android:checkable="true"
+        app:showAsAction="never"/>
+
 </menu>
