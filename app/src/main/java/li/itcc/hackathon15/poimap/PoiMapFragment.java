@@ -85,7 +85,6 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
             FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
             fCreateButton = rootView.findViewById(R.id.viw_add_button);
             fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
-            fCreateButton.setVisibility(View.GONE);
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             container.removeView(v);
             frame.addView(v, params);

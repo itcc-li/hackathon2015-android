@@ -26,7 +26,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,16 +38,14 @@ import com.google.android.gms.location.LocationServices;
 import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
-import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.exactlocation.ExactLocationActivity;
-import li.itcc.hackathon15.util.ExceptionHandler;
 import li.itcc.hackathon15.util.StreamUtil;
 import li.itcc.hackathon15.util.ValidationHelper;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiAddActivity extends AppCompatActivity implements PoiUploader.PoiUploadListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class PoiAddActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     private DecimalFormat FORMAT_1 = new DecimalFormat("##0.000000");
     private static final String KEY_LOCATION = "KEY_LOCATION";
     private static final String KEY_EXACT_LOCATION = "KEY_EXACT_LOCATION";
@@ -67,7 +64,6 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
     private File fLocalImageFileOriginal;
     private File fLocalImageFileCropped;
     private View fClearPictureButton;
-    private ProgressBar fProgressBar;
     private GoogleApiClient fGoogleApiClient;
     private Location fLocation;
     private Location fExactLocation;
@@ -138,10 +134,6 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         fName = (EditText)findViewById(R.id.etx_name);
         fDescription = (EditText)findViewById(R.id.etx_description);
         fImage = (ImageView)findViewById(R.id.img_image);
-        fProgressBar = (ProgressBar)findViewById(R.id.prb_progress);
-        fProgressBar.setMax(100);
-        fProgressBar.setProgress(0);
-        fProgressBar.setVisibility(View.INVISIBLE);
         buildGoogleApiClient();
         // restore state
         if (savedInstanceState != null) {
@@ -304,9 +296,6 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
         takePicture();
     }
 
-
-
-
     private void onSaveClick(View v) {
         // validate input
         ValidationHelper vh = new ValidationHelper(this);
@@ -328,35 +317,15 @@ public class PoiAddActivity extends AppCompatActivity implements PoiUploader.Poi
             detail.setExactLatitude(fExactLocation.getLatitude());
             detail.setExactLongitude(fExactLocation.getLongitude());
         }
-        PoiUploader saver = new PoiUploader(getApplicationContext(), this);
-        saver.setLocalImageFile(fLocalImageFileCropped);
-        fSaveButton.setEnabled(false);
-        fProgressBar.setProgress(0);
-        fProgressBar.setVisibility(View.VISIBLE);
-        saver.save(detail);
+        LocalPoiSaver saver = new LocalPoiSaver(getApplicationContext());
+        // fire and forget
+        saver.save(detail, fLocalImageFileCropped);
+        finish();
     }
 
     private void onCancelClick(View v) {
         finish();
     }
-
-    @Override
-    public void onTaskCompleted(PoiOverviewBean poiOverviewBean) {
-        finish();
-    }
-
-    @Override
-    public void onTaskProgress(int percentage) {
-        fProgressBar.setProgress(percentage);
-    }
-
-    @Override
-    public void onTaskAborted(Throwable th) {
-        fSaveButton.setEnabled(true);
-        fProgressBar.setVisibility(View.INVISIBLE);
-        new ExceptionHandler(this).onTaskAborted(th);
-    }
-
 
     // getting pictures
 

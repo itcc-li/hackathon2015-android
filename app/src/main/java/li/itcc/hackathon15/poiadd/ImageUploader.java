@@ -15,7 +15,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 import li.itcc.hackathon15.ReleaseConfig;
 import li.itcc.hackathon15.services.PoiServices;
-import li.itcc.hackathon15.util.loading.TaskProgressListener;
 import li.itcc.hackathon15.util.StreamUtil;
 
 /**
@@ -25,11 +24,9 @@ public class ImageUploader {
 
     private static final String BOUNDARY = "ayfQuegbhrmjYtdLwPdsfitergKyhbwjAM25z9AJuGSx7WG9dnD";
     private static final int JUNK_SIZE = 10000;
-    private final TaskProgressListener fListener;
     private final PoiServices fServices;
 
-    public ImageUploader(PoiServices services, TaskProgressListener listener) {
-        fListener = listener;
+    public ImageUploader(PoiServices services) {
         fServices = services;
     }
 
@@ -41,7 +38,11 @@ public class ImageUploader {
         if (fileSize == 0) {
             return null;
         }
-        InputStream inputStream = new FileInputStream(imageFile);;
+        InputStream inputStream = new FileInputStream(imageFile);
+        return uploadImage(inputStream);
+    }
+
+    public String uploadImage(InputStream inputStream) throws Exception {
         // stream is ready, get url to upload
         String postURL = fServices.getImageUploadUrl().getUrl();
         // patch the url for local testing
@@ -69,8 +70,7 @@ public class ImageUploader {
                     "Content-Disposition: form-data; name=\"image\"; filename=\"image.jpg\"\r\n" +
                     "Content-Type: image/jpeg\r\n" +
                     "\r\n");
-            long totalUploadSize = fileSize;
-            StreamUtil.pumpAllAndClose(inputStream, outputStream, totalUploadSize, fListener, false);
+            StreamUtil.pumpAllAndClose(inputStream, outputStream, false);
             // write final boundary
             outputStream.writeBytes("\r\n--" + BOUNDARY + "--\r\n");
             outputStream.flush();

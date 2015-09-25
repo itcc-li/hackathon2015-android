@@ -26,4 +26,5 @@ public class DatabaseContract {
         public static final String POI_LONGITUDE = "poi_longitude";
         public static final String POI_LATITUDE = "poi_latitude";
     }
+
 }

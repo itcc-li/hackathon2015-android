@@ -48,10 +48,8 @@ public class PoiTableUpdater  {
         fContext.getContentResolver().notifyChange(DatabaseContract.Pois.CONTENT_URI, null);
     }
 
-    public void insertPoiOverview(PoiOverviewBean result) throws Exception {
-        dbOpenHelper = new PoiDBOpenHelper(fContext);
-        SQLiteDatabase dbWrite = dbOpenHelper.getWritableDatabase();
-        SQLiteStatement insertStatement = createInsertStatement(dbWrite);
+    public void insertPoiOverview(SQLiteDatabase db, PoiOverviewBean result) throws Exception {
+        SQLiteStatement insertStatement = createInsertStatement(db);
         executeInsert(insertStatement, result);
         insertStatement.close();
         fContext.getContentResolver().notifyChange(DatabaseContract.Pois.CONTENT_URI, null);

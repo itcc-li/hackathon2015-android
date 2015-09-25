@@ -12,6 +12,10 @@ import li.itcc.hackathon15.util.loading.TaskProgressListener;
 public class StreamUtil {
 
     public static final long pumpAllAndClose(InputStream in, OutputStream out) throws IOException {
+        return pumpAllAndClose(in, out, true);
+    }
+
+    public static final long pumpAllAndClose(InputStream in, OutputStream out, boolean closeOut) throws IOException {
         long totalSize = 0;
         try {
             byte[] buffer = new byte[10000];
@@ -24,7 +28,9 @@ public class StreamUtil {
         }
         finally {
             in.close();
-            out.close();
+            if (closeOut) {
+                out.close();
+            }
         }
         return totalSize;
     }
@@ -35,7 +41,7 @@ public class StreamUtil {
 
     public static final long pumpAllAndClose(InputStream in, OutputStream out, long expectedSize, TaskProgressListener listener, boolean closeOut) throws IOException {
         if (expectedSize <= 0 || listener == null) {
-            return pumpAllAndClose(in, out);
+            return pumpAllAndClose(in, out, closeOut);
         }
         long totalSize = 0;
         try {
