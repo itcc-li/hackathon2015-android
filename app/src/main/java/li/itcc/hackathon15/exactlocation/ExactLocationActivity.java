@@ -7,7 +7,10 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,7 +30,7 @@ import li.itcc.hackathon15.R;
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class ExactLocationActivity extends FragmentActivity implements OnMapReadyCallback {
+public class ExactLocationActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String KEY_LOCATION = "KEY_LOCATION";
     private static final String KEY_EXACT_LOCATION = "KEY_EXACT_LOCATION";
     public static final String RESULT_KEY = "RESULT_KEY";
@@ -68,6 +71,30 @@ public class ExactLocationActivity extends FragmentActivity implements OnMapRead
         }
         mapFragment.getMapAsync(this);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.exact_location, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_satellite) {
+            if (item.isChecked()) {
+                item.setChecked(false);
+                fGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            }
+            else {
+                item.setChecked(true);
+                fGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
