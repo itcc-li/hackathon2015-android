@@ -137,7 +137,16 @@ public class PoiEndpoint {
         }
         Double exactLatitude = request.getExactLatitude();
         Double exactLongitude = request.getExactLongitude();
-        // TODO: check distance of Exact coordinates
+        if (exactLatitude == null ^ exactLongitude == null) {
+            throw new IllegalArgumentException("Exact latitude must both be null or not null");
+        }
+        if (exactLatitude != null && exactLongitude != null) {
+            double distance = getDisance(latitude, longitude, exactLatitude, exactLongitude);
+            // give 1 meter tolerance
+            if (distance > PoiConstants.FINE_LOCATION_MAX_RADIUS + 1) {
+                throw new IllegalArgumentException("Exact location out of radius");
+            }
+        }
         String name = request.getPoiName();
         if (name == null) {
             throw new NullPointerException("Name must not be null");
@@ -203,5 +212,20 @@ public class PoiEndpoint {
         result.setRating(entity.getRating());
         result.setThumbnailBase64(entity.getThumbnailBase64());
         return result;
+    }
+
+
+    public static double getDisance(double lat1, double lng1, double lat2, double lng2) {
+        // see https://en.wikipedia.org/wiki/Great-circle_distance
+        double lat1Rad = Math.toRadians(lat1);
+        double lng1Rad = Math.toRadians(lng1);
+        double lat2Rad = Math.toRadians(lat2);
+        double lng2Rad = Math.toRadians(lng2);
+        double sec1 = Math.sin(lat1Rad) * Math.sin(lat2Rad);
+        double sec2 = Math.cos(lat1Rad) * Math.cos(lat2Rad);
+        double dLngRad = Math.abs(lng1Rad - lng2Rad);
+        double centralAngle = Math.acos(sec1 + sec2 * Math.cos(dLngRad));
+        double distanceMeters = centralAngle * PoiConstants.EARTH_RADIUS_IN_METER;
+        return distanceMeters;
     }
 }

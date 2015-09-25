@@ -102,15 +102,14 @@ public class ExactLocationActivity extends AppCompatActivity implements OnMapRea
         super.onSaveInstanceState(outState);
     }
 
-    private static final int EARTH_RADIUS_METER = 6366197;
 
     private void updateViewArea() {
         double latitude = fLocation.getLatitude();
         double longitude = fLocation.getLongitude();
         // we add 10%
         double radius = (double)PoiConstants.FINE_LOCATION_MAX_RADIUS * 1.1;
-        double deltaLatitude = radius / (double)EARTH_RADIUS_METER * 180.0 / Math.PI;
-        double cosLat = Math.cos(latitude * Math.PI / 180);
+        double deltaLatitude = Math.toDegrees(radius / (double)PoiConstants.EARTH_RADIUS_IN_METER);
+        double cosLat = Math.cos(Math.toRadians(latitude));
         if (cosLat < 0.01) {
             // avoid division by zero at north pole
             cosLat = 0.01;
