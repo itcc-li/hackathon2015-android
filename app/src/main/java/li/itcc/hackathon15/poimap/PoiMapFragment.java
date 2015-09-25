@@ -78,7 +78,7 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
         setting.setMapToolbarEnabled(false);
         setting.setMyLocationButtonEnabled(true);
         // trick: we have to add a floating button so we add an extra layer
-        boolean addButton = false;
+        boolean addButton = true;
         if (addButton) {
             container.removeView(v);
             View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);

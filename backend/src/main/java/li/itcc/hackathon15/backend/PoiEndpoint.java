@@ -7,6 +7,7 @@
 package li.itcc.hackathon15.backend;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
@@ -27,6 +28,7 @@ import com.googlecode.objectify.Key;
 
 import li.itcc.hackathon15.PoiConstants;
 import li.itcc.hackathon15.entities.PoiEntity;
+import li.itcc.hackathon15.servlets.UploadCallback;
 import li.itcc.hackathon15.util.BackendUtils;
 
 import static li.itcc.hackathon15.datastore.OfyService.ofy;
@@ -44,6 +46,7 @@ import static li.itcc.hackathon15.datastore.OfyService.ofy;
         )
 )
 public class PoiEndpoint {
+    private static final Logger log = Logger.getLogger(UploadCallback.class.getName());
 
     /**
      * Returns a list of poi for the given latitude and logitude.
@@ -92,9 +95,13 @@ public class PoiEndpoint {
             ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
             ImagesService imageService = ImagesServiceFactory.getImagesService();
             BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-            String url = imageService.getServingUrl(options);
-            result.setImageUrl(url);
-
+            try {
+                String url = imageService.getServingUrl(options);
+                result.setImageUrl(url);
+            }
+            catch (Exception x) {
+                log.warning("Could not load image url " + x.getClass().getName() + " " + x.getMessage());
+            }
             result.setImageUpdateTime(entity.getImageUpdateTime());
         }
         return result;
