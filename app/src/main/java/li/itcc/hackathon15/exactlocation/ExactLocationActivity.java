@@ -14,7 +14,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -125,7 +124,7 @@ public class ExactLocationActivity extends FragmentActivity implements OnMapRead
         String snippet = getString(R.string.txt_drag_me_snippet);
         MarkerOptions options = new MarkerOptions();
         options.position(markerPosition).draggable(true).title(title).snippet(snippet);
-        options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_48dp));
+        //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_48dp));
         fMarker = fGoogleMap.addMarker(options);
         CircleOptions circleOptions = new CircleOptions().center(position).radius(PoiConstants.FINE_LOCATION_MAX_RADIUS);
         fCircle = fGoogleMap.addCircle(circleOptions);

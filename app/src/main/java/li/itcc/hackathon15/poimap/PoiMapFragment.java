@@ -29,7 +29,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -245,10 +244,10 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
                 String shortDescr = data.getString(descrCol);
                 long id = data.getLong(idCol);
                 LatLng loc = new LatLng(latitude, longitude);
-                Marker marker = fGoogleMap.addMarker(new MarkerOptions()
-                        .title(name)
-                        .snippet(shortDescr)
-                        .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_48dp)));
+                MarkerOptions options = new MarkerOptions();
+                options.position(loc).draggable(true).title(name).snippet(shortDescr);
+                //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_48dp));
+                Marker marker = fGoogleMap.addMarker(options);
                 fMarkers.put(marker, new Long(id));
             } while (data.moveToNext());
 
