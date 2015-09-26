@@ -34,7 +34,7 @@ public class PoiTableUpdater  {
         listener.onTaskProgress(80);
         List<PoiOverviewBean> list = listBean.getList();
         if (list != null) {
-            SQLiteStatement insertStatement = createInsertStatement(dbWrite);
+            SQLiteStatement insertStatement = PoiOverviewTable.createInsertStatement(dbWrite);
             int insertCount = listBean.getList().size();
             int doneInserts = 0;
             for (PoiOverviewBean poi : listBean.getList()) {
@@ -49,16 +49,18 @@ public class PoiTableUpdater  {
     }
 
     public void insertPoiOverview(SQLiteDatabase db, PoiOverviewBean result) throws Exception {
-        SQLiteStatement insertStatement = createInsertStatement(db);
+        SQLiteStatement insertStatement = PoiOverviewTable.createInsertStatement(db);
         executeInsert(insertStatement, result);
         insertStatement.close();
         fContext.getContentResolver().notifyChange(DatabaseContract.Pois.CONTENT_URI, null);
     }
 
+
+
     private void executeInsert(SQLiteStatement insertStatement, PoiOverviewBean poi) throws Exception {
-        insertStatement.bindLong(1, poi.getPoiId());
-        insertStatement.bindString(2, poi.getPoiName());
-        String shortDescription = poi.getShortPoiDescription();
+        insertStatement.bindString(1, poi.getUuid());
+        insertStatement.bindString(2, poi.getName());
+        String shortDescription = poi.getShortDescription();
         if (shortDescription == null) {
             insertStatement.bindNull(3);
         }
@@ -71,21 +73,10 @@ public class PoiTableUpdater  {
         String thumbnail = poi.getThumbnailBase64();
         if (thumbnail != null && thumbnail.length() > 0) {
             byte[] thumbnailData = android.util.Base64.decode(thumbnail, Base64.DEFAULT);
-            fCache.storeBitmap(poi.getPoiId(), thumbnailData);
+            fCache.storeBitmap(poi.getUuid(), thumbnailData);
         }
     }
 
-    private SQLiteStatement createInsertStatement(SQLiteDatabase dbWrite) {
-        //SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        //queryBuilder.query(dbWrite, )
-        String sql = "insert into " + PoiDatabaseConstants.TABLE_POIS + "(" +
-        DatabaseContract.Pois.POI_ID + "," +
-        DatabaseContract.Pois.POI_NAME + "," +
-        DatabaseContract.Pois.POI_SHORT_DESCRIPTION + "," +
-        DatabaseContract.Pois.POI_LONGITUDE + "," +
-        DatabaseContract.Pois.POI_LATITUDE + ") values (?,?,?,?,?)";
-        return dbWrite.compileStatement(sql);
-    }
 
 
 }

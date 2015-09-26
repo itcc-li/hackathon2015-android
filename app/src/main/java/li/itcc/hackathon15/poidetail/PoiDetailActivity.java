@@ -32,7 +32,7 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
     private ProgressBar fProgressBar;
     private TextView fDescription;
 
-    public static void start(Activity parent, long poiId) {
+    public static void start(Activity parent, String poiId) {
         Intent i = new Intent(parent, PoiDetailActivity.class);
         i.putExtra(KEY_ID, poiId);
         parent.startActivityForResult(i, 0);
@@ -50,7 +50,7 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
         fProgressBar = (ProgressBar)findViewById(R.id.prb_progress);
         fProgressBar.setMax(100);
         fProgressBar.setVisibility(View.VISIBLE);
-        long id = getIntent().getExtras().getLong(KEY_ID);
+        String id = getIntent().getExtras().getString(KEY_ID);
         new PoiDetailLoader(this, this).load(id);
     }
 
@@ -60,7 +60,7 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
         if (data.getImageUrl() != null) {
             // the image has been downloaded
             ImageStore store = new ImageStore(this);
-            ImageStore.Key key = store.createKey(data.getOverview().getPoiId(), data.getImageUpdateTime());
+            ImageStore.Key key = store.createKey(data.getOverview().getUuid(), data.getImageUpdateTime());
             Bitmap bmp = BitmapFactory.decodeFile(store.getImageFilePath(key));
             fImage.setImageBitmap(bmp);
         }
@@ -69,7 +69,7 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
         }
         PoiOverviewBean overviewData = data.getOverview();
         fRating.setRating(overviewData.getRating());
-        fName.setText(overviewData.getPoiName());
+        fName.setText(overviewData.getName());
         fDescription.setText(data.getDescription());
     }
 

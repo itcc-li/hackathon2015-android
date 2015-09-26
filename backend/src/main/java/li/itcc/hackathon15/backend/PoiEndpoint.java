@@ -7,6 +7,7 @@
 package li.itcc.hackathon15.backend;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import com.google.api.server.spi.config.Api;
@@ -74,8 +75,13 @@ public class PoiEndpoint {
     }
 
     @ApiMethod(name = "getPoiDetails")
-    public PoiDetailBean getPoiDetails(@Named("poiId") long poiId) {
-        Key<PoiEntity> poiKey = Key.create(PoiEntity.class, poiId);
+    public PoiDetailBean getPoiDetails(@Named("poiuuid") String uuid) {
+        if (uuid == null) {
+            throw new NullPointerException();
+        }
+        // validate uuid
+        UUID.fromString(uuid);
+        Key<PoiEntity> poiKey = Key.create(PoiEntity.class, uuid);
         PoiEntity entity = ofy().load().key(poiKey).now();
         if (entity == null) {
             return null;
@@ -127,6 +133,8 @@ public class PoiEndpoint {
     @ApiMethod(name = "insertPoi")
     public PoiOverviewBean insertPoi(PoiCreateBean request) throws Exception {
         // 1. validation
+        String uuid = request.getUuid();
+        UUID.fromString(uuid);
         double latitude = request.getLatitude();
         if (latitude > 90.0 || latitude < -90.0) {
             throw new IllegalArgumentException("Bad latitude " + latitude);
@@ -174,6 +182,7 @@ public class PoiEndpoint {
         // 2. store
         long now = System.currentTimeMillis();
         PoiEntity entity = new PoiEntity();
+        entity.setUuid(uuid);
         entity.setLatitude(latitude);
         entity.setLongitude(longitude);
         entity.setExactLatitude(exactLatitude);
@@ -196,7 +205,7 @@ public class PoiEndpoint {
 
     private PoiOverviewBean createBean(PoiEntity entity) {
         PoiOverviewBean result = new PoiOverviewBean();
-        result.setPoiId(entity.getId());
+        result.setUuid(entity.getUuid());
         Double exactLatitude = entity.getExactLatitude();
         Double exactLongitude = entity.getExactLongitude();
         if (exactLatitude != null && exactLongitude != null) {
@@ -207,8 +216,8 @@ public class PoiEndpoint {
             result.setLatitude(entity.getLatitude());
             result.setLongitude(entity.getLongitude());
         }
-        result.setPoiName(entity.getName());
-        result.setShortPoiDescription(entity.getShortDescription());
+        result.setName(entity.getName());
+        result.setShortDescription(entity.getShortDescription());
         result.setRating(entity.getRating());
         result.setThumbnailBase64(entity.getThumbnailBase64());
         return result;

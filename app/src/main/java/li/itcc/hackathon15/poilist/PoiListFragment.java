@@ -121,7 +121,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void onListItemClick(int position, long id) {
         Cursor c = (Cursor)fDataAdapter.getItem(position);
-        long poiId = c.getLong(c.getColumnIndex(DatabaseContract.Pois.POI_ID));
+        String poiId = c.getString(c.getColumnIndex(DatabaseContract.Pois._ID));
         PoiDetailActivity.start(getActivity(), poiId);
     }
 
@@ -250,7 +250,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             POI_LONGITUDE_INDEX = count++;
             POI_ID_INDEX = count++;
             // Note: must be same order
-            fColumnNames = new String[]{DatabaseContract.Pois.POI_NAME, DatabaseContract.Pois.POI_SHORT_DESCRIPTION, DatabaseContract.Pois.POI_LATITUDE, DatabaseContract.Pois.POI_LONGITUDE, DatabaseContract.Pois.POI_ID};
+            fColumnNames = new String[]{DatabaseContract.Pois.POI_NAME, DatabaseContract.Pois.POI_SHORT_DESCRIPTION, DatabaseContract.Pois.POI_LATITUDE, DatabaseContract.Pois.POI_LONGITUDE, DatabaseContract.Pois._ID};
             fColumnIndices = new int[fColumnNames.length];
         }
 
@@ -301,7 +301,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
                 distance.setText("");
             }
             // thumb
-            long id = cursor.getLong(fColumnIndices[POI_ID_INDEX]);
+            String id = cursor.getString(fColumnIndices[POI_ID_INDEX]);
             ImageView imageView = (ImageView) view.findViewById(R.id.imv_thumbnail);
             imageView.setImageBitmap(fThumbnailCache.getBitmap(id));
         }

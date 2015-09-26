@@ -15,7 +15,7 @@ import li.itcc.hackathon15.R;
  */
 public class ThumbnailCache {
     private final Context fContext;
-    private HashMap<Long, Bitmap> fCache = new HashMap<>();
+    private HashMap<String, Bitmap> fCache = new HashMap<>();
     private Bitmap fBrokenBitmap;
 
     public ThumbnailCache(Context context) {
@@ -30,9 +30,8 @@ public class ThumbnailCache {
         // TODO
     }
 
-    public Bitmap getBitmap(long key) {
-        Long keyLong = Long.valueOf(key);
-        Bitmap result = fCache.get(keyLong);
+    public Bitmap getBitmap(String key) {
+        Bitmap result = fCache.get(key);
         if (result == null) {
             InputStream in = null;
             try {
@@ -52,7 +51,7 @@ public class ThumbnailCache {
                     }
                 }
             }
-            fCache.put(keyLong, result);
+            fCache.put(key, result);
         }
         return result;
     }
@@ -64,7 +63,7 @@ public class ThumbnailCache {
         return fBrokenBitmap;
     }
 
-    public void storeBitmap(long key, byte[] raw) throws Exception {
+    public void storeBitmap(String key, byte[] raw) throws Exception {
         if (raw == null) {
             fContext.deleteFile(getFileName(key));
         }
@@ -76,7 +75,7 @@ public class ThumbnailCache {
         }
     }
 
-    private String getFileName(long key) {
+    private String getFileName(String key) {
         return "thumb_" + key;
     }
 

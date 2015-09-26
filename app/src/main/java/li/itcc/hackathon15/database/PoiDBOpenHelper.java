@@ -10,13 +10,12 @@ import li.itcc.hackathon15.poiadd.UploadTable;
 public class PoiDBOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "PoiDatabase.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // SQL Statement to create a new database.
     private static final String CREATE_POI_TABLE = "create table " +
     PoiDatabaseConstants.TABLE_POIS + " (" + DatabaseContract.Pois._ID +
-    " integer primary key autoincrement, " +
-    DatabaseContract.Pois.POI_ID + " integer, " +
+    " string primary key, " +
     DatabaseContract.Pois.POI_LONGITUDE + " real, " +
     DatabaseContract.Pois.POI_LATITUDE + " real, " +
     DatabaseContract.Pois.POI_NAME + " string not null, " +

@@ -60,8 +60,8 @@ public class PoiServices {
         return sfPoiApiService.getImageUploadUrl().execute();
     }
 
-    public PoiDetailBean getPoiDetails(long poiId) throws Exception {
-        return sfPoiApiService.getPoiDetails(poiId).execute();
+    public PoiDetailBean getPoiDetails(String poiUuid) throws Exception {
+        return sfPoiApiService.getPoiDetails(poiUuid).execute();
     }
 
 }

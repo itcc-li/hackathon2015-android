@@ -67,21 +67,21 @@ public class LocalPoiSaver {
             try {
                 SQLiteStatement stmt = UploadTable.createInsertStatement(db);
                 UploadTable.bindToInsertStatement(stmt, fDetail);
-                long id = stmt.executeInsert();
-                if (id == -1L) {
+                String uuid = fDetail.getUuid();
+                if (stmt.executeInsert() == -1L) {
                     throw new IOException("can not insert");
                 }
                 stmt.close();
                 // now we have an id, copy the image file to private storage until upload finished
                 String fileName = null;
                 if (fLocalImageFile != null && fLocalImageFile.canRead()) {
-                    fileName = getFileName(id);
+                    fileName = getFileName(uuid);
                     OutputStream out = fContext.openFileOutput(fileName, Context.MODE_PRIVATE);
                     InputStream in = new FileInputStream(fLocalImageFile);
                     StreamUtil.pumpAllAndClose(in, out);
                 }
                 stmt = UploadTable.createUpdateStatement(db);
-                UploadTable.bindToUpdateStatement(stmt, id, fileName);
+                UploadTable.bindToUpdateStatement(stmt, fDetail.getUuid(), fileName);
                 stmt.executeUpdateDelete();
                 stmt.close();
                 db.setTransactionSuccessful();
@@ -91,8 +91,8 @@ public class LocalPoiSaver {
             }
         }
 
-        private String getFileName(long key) {
-            return "upload_" + key;
+        private String getFileName(String uuid) {
+            return "upload_" + uuid;
         }
 
         @Override

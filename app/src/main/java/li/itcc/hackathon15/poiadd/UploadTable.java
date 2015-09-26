@@ -25,7 +25,7 @@ public class UploadTable {
     public static void createTable(SQLiteDatabase db) {
         String sql = "create table " +
                 TABLE_POI_UPLOADS + " (" + _ID +
-                " integer primary key autoincrement, " +
+                " string primary key, " +
                 COL_LATITUDE + " real not null, " +
                 COL_LONGITUDE + " real not null, " +
                 COL_EXACT_LATITUDE + " real, " +
@@ -42,22 +42,24 @@ public class UploadTable {
 
     public static SQLiteStatement createInsertStatement(SQLiteDatabase dbWrite) {
         String sql = "insert into " + TABLE_POI_UPLOADS + "(" +
+                _ID + "," +
                 COL_LATITUDE + "," +
                 COL_LONGITUDE + "," +
                 COL_EXACT_LATITUDE + "," +
                 COL_EXACT_LONGITUDE + "," +
                 COL_NAME + "," +
-                COL_DESCRIPTION + ") values (?,?,?,?,?,?)";
+                COL_DESCRIPTION + ") values (?,?,?,?,?,?,?)";
         return dbWrite.compileStatement(sql);
     }
 
     public static void bindToInsertStatement(SQLiteStatement stmt, PoiCreateBean detail) {
-        stmt.bindDouble(1, detail.getLatitude());
-        stmt.bindDouble(2, detail.getLongitude());
-        DbUtil.bindDoubleOrNull(3, stmt, detail.getExactLatitude());
-        DbUtil.bindDoubleOrNull(4, stmt, detail.getExactLongitude());
-        stmt.bindString(5, detail.getPoiName());
-        DbUtil.bindStringOrNull(6, stmt, detail.getPoiDescription());
+        stmt.bindString(1, detail.getUuid());
+        stmt.bindDouble(2, detail.getLatitude());
+        stmt.bindDouble(3, detail.getLongitude());
+        DbUtil.bindDoubleOrNull(4, stmt, detail.getExactLatitude());
+        DbUtil.bindDoubleOrNull(5, stmt, detail.getExactLongitude());
+        stmt.bindString(6, detail.getPoiName());
+        DbUtil.bindStringOrNull(7, stmt, detail.getPoiDescription());
     }
 
     public static SQLiteStatement createUpdateStatement(SQLiteDatabase dbWrite) {
@@ -67,9 +69,9 @@ public class UploadTable {
         return dbWrite.compileStatement(sql);
     }
 
-    public static void bindToUpdateStatement(SQLiteStatement stmt, long id, String fileName) {
+    public static void bindToUpdateStatement(SQLiteStatement stmt, String id, String fileName) {
         DbUtil.bindStringOrNull(1, stmt, fileName);
-        stmt.bindLong(2, id);
+        stmt.bindString(2, id);
     }
 
     public static Cursor executeSelectUploadsStatement(SQLiteDatabase db) {
@@ -86,12 +88,9 @@ public class UploadTable {
         return db.rawQuery(sql, null);
     }
 
-    public static long loadIdFromCursor(Cursor c) {
-        return c.getLong(0);
-    }
-
     public static PoiCreateBean loadBeanFromCursor(Cursor c) {
         PoiCreateBean bean = new PoiCreateBean();
+        bean.setUuid(c.getString(0));
         bean.setLatitude(c.getDouble(1));
         bean.setLongitude(c.getDouble(2));
         bean.setExactLatitude(DbUtil.getDoubleOrNull(c, 3));
@@ -105,11 +104,11 @@ public class UploadTable {
         return c.getString(7);
     }
 
-    public static void executeDeleteStatement(SQLiteDatabase db, long id) {
+    public static void executeDeleteStatement(SQLiteDatabase db, String id) {
         String sql = "delete from " + TABLE_POI_UPLOADS +
                 " where " + _ID  + "=?;";
         SQLiteStatement stmt = db.compileStatement(sql);
-        stmt.bindLong(1, id);
+        stmt.bindString(1, id);
         stmt.executeUpdateDelete();
     }
 

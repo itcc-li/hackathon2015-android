@@ -4,21 +4,21 @@ package li.itcc.hackathon15.backend;
  * The object model for the data we are sending through endpoints
  */
 public class PoiOverviewBean {
-    private Long poiId;
+    private String uuid;
     private Double longitude;
     private Double latitude;
-    private String poiName;
-    private String shortPoiDescription;
+    private String name;
+    private String shortDescription;
     private Float rating;
     private String thumbnailBase64;
 
 
-    public Long getPoiId() {
-        return poiId;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setPoiId(Long poiId) {
-        this.poiId = poiId;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public Double getLongitude() {
@@ -37,12 +37,12 @@ public class PoiOverviewBean {
         this.latitude = latitude;
     }
 
-    public String getPoiName() {
-        return poiName;
+    public String getName() {
+        return name;
     }
 
-    public void setPoiName(String poiName) {
-        this.poiName = poiName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Float getRating() {
@@ -61,11 +61,11 @@ public class PoiOverviewBean {
         this.thumbnailBase64 = thumbnailBase64;
     }
 
-    public String getShortPoiDescription() {
-        return shortPoiDescription;
+    public String getShortDescription() {
+        return shortDescription;
     }
 
-    public void setShortPoiDescription(String shortPoiDescription) {
-        this.shortPoiDescription = shortPoiDescription;
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
     }
 }

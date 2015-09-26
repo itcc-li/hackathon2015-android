@@ -4,6 +4,7 @@ package li.itcc.hackathon15.backend;
  * The object model for the data we are sending through endpoints
  */
 public class PoiCreateBean {
+    private String uuid;
     private double longitude;
     private double latitude;
     private Double exactLongitude;
@@ -11,6 +12,14 @@ public class PoiCreateBean {
     private String poiName;
     private String poiDescription;
     private String imageBlobKey;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public double getLongitude() {
         return longitude;

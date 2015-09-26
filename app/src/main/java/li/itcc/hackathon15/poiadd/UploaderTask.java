@@ -59,7 +59,7 @@ public class UploaderTask extends AsyncTask<Void, Void, Void> {
             }
             c.moveToFirst();
             PoiCreateBean param = UploadTable.loadBeanFromCursor(c);
-            long id = UploadTable.loadIdFromCursor(c);
+            String uuid = param.getUuid();
             String fileName = UploadTable.loadBlobNameFromCursor(c);
             if (fileName != null) {
                 InputStream in = fContext.openFileInput(fileName);
@@ -76,7 +76,7 @@ public class UploaderTask extends AsyncTask<Void, Void, Void> {
             PoiTableUpdater updater = new PoiTableUpdater(fContext);
             updater.insertPoiOverview(db, result);
             // delete local copy
-            UploadTable.executeDeleteStatement(db, id);
+            UploadTable.executeDeleteStatement(db, uuid);
             if (fileName != null) {
                 // delete local file
                 fContext.deleteFile(fileName);

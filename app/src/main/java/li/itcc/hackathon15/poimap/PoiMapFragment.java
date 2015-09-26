@@ -46,7 +46,7 @@ import li.itcc.hackathon15.util.ThumbnailCache;
 public class PoiMapFragment extends SupportMapFragment implements LoaderManager.LoaderCallbacks<Cursor>, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String KEY_LOCATION_ZOOM_DONE = "KEY_LOCATION_ZOOM_DONE";
     private GoogleMap fGoogleMap;
-    private HashMap<Marker, Long> fMarkers = new HashMap<>();
+    private HashMap<Marker, String> fMarkers = new HashMap<>();
     private View fCreateButton;
     private Location fLocation;
     private boolean fLocationZoomDone = false;
@@ -174,9 +174,9 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
     }
 
     private boolean onClick(Marker marker) {
-        Long id = fMarkers.get(marker);
+        String id = fMarkers.get(marker);
         if (id != null) {
-            PoiDetailActivity.start(getActivity(), id.longValue());
+            PoiDetailActivity.start(getActivity(), id);
         }
         return true;
     }
@@ -234,20 +234,20 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
         int latitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LATITUDE);
         int nameCol = data.getColumnIndex(DatabaseContract.Pois.POI_NAME);
         int descrCol = data.getColumnIndex(DatabaseContract.Pois.POI_SHORT_DESCRIPTION);
-        int idCol = data.getColumnIndex(DatabaseContract.Pois.POI_ID);
+        int idCol = data.getColumnIndex(DatabaseContract.Pois._ID);
         if (data.moveToFirst()) {
             do {
                 double longitude = data.getDouble(longitudeCol);
                 double latitude = data.getDouble(latitudeCol);
                 String name = data.getString(nameCol);
                 String shortDescr = data.getString(descrCol);
-                long id = data.getLong(idCol);
+                String id = data.getString(idCol);
                 LatLng loc = new LatLng(latitude, longitude);
                 MarkerOptions options = new MarkerOptions();
                 options.position(loc).draggable(true).title(name).snippet(shortDescr);
                 //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_48dp));
                 Marker marker = fGoogleMap.addMarker(options);
-                fMarkers.put(marker, new Long(id));
+                fMarkers.put(marker, id);
             } while (data.moveToNext());
 
         }
@@ -285,11 +285,11 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
 
         @Override
         public View getInfoContents(Marker marker) {
-            Long id = fMarkers.get(marker);
+            String id = fMarkers.get(marker);
             if (id == null) {
                 return null;
             }
-            Bitmap bitmap = fCache.getBitmap(id.longValue());
+            Bitmap bitmap = fCache.getBitmap(id);
             if (bitmap == null) {
                 return null;
             }

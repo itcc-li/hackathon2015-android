@@ -16,11 +16,11 @@ public class ImageStore {
 
 
     public class Key {
-        private long fId;
+        private String fId;
         private long fTimeStamp;
 
-        private Key(long id, long timeStamp) {
-            fId = id;
+        private Key(String uuid, long timeStamp) {
+            fId = uuid;
             fTimeStamp = timeStamp;
         }
     }
@@ -30,8 +30,8 @@ public class ImageStore {
         fContext = context;
     }
 
-    public Key createKey(long id, long updateTime) {
-        return new Key(id, updateTime);
+    public Key createKey(String uuid, long updateTime) {
+        return new Key(uuid, updateTime);
     }
 
     public boolean exists(Key key) {

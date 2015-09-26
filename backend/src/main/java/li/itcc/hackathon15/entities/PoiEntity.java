@@ -11,7 +11,7 @@ import li.itcc.hackathon15.util.Base64;
 @Entity
 public class PoiEntity {
     @Id
-    Long id;
+    String uuid;
     double longitude;
     double latitude;
     Double exactLongitude;
@@ -62,12 +62,13 @@ public class PoiEntity {
 
     // getters and setters
 
-    public Long getId() {
-        return id;
+
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public double getLongitude() {

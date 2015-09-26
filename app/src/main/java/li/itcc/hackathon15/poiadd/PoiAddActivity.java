@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -308,12 +309,14 @@ public class PoiAddActivity extends AppCompatActivity implements GoogleApiClient
             Toast.makeText(this, R.string.txt_location_missing, Toast.LENGTH_LONG).show();
             return;
         }
+        // validation is o.k., create new bean
         PoiCreateBean detail = new PoiCreateBean();
+        detail.setUuid(UUID.randomUUID().toString());
         detail.setPoiName(poiName);
         detail.setPoiDescription(poiDescription);
         detail.setLatitude(fLocation.getLatitude());
         detail.setLongitude(fLocation.getLongitude());
-        if (fExactLocation != null) {
+        if (fExactLocation != null && fLocation.distanceTo(fExactLocation) < PoiConstants.FINE_LOCATION_MAX_RADIUS + 0.5) {
             detail.setExactLatitude(fExactLocation.getLatitude());
             detail.setExactLongitude(fExactLocation.getLongitude());
         }

@@ -28,25 +28,25 @@ public class PoiDetailLoader {
         fListener = listener;
     }
 
-    public void load(long poiId) {
+    public void load(String poiId) {
         new LoadTask(fListener).execute(poiId);
     }
 
-    private class LoadTask extends GenericTask<Long, PoiDetailBean> {
+    private class LoadTask extends GenericTask<String, PoiDetailBean> {
 
         public LoadTask(PoiDetailLoaderListener listener) {
             super(listener);
         }
 
         @Override
-        protected PoiDetailBean doInBackgroundOrThrow(Long... params) throws Exception {
-            Long param = params[0];
+        protected PoiDetailBean doInBackgroundOrThrow(String... params) throws Exception {
+            String param = params[0];
             PoiServices poiServices = new PoiServices(fContext, ReleaseConfig.URL);
-            PoiDetailBean detail = poiServices.getPoiDetails(params[0].longValue());
+            PoiDetailBean detail = poiServices.getPoiDetails(params[0]);
             // load image if available
             String imageUrl = detail.getImageUrl();
             ImageStore store = new ImageStore(fContext);
-            ImageStore.Key key = store.createKey(detail.getOverview().getPoiId(), detail.getImageUpdateTime());
+            ImageStore.Key key = store.createKey(detail.getOverview().getUuid(), detail.getImageUpdateTime());
             if (imageUrl != null) {
                 // check if download of image is needed
                 if (!store.exists(key)) {

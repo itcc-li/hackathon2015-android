@@ -20,7 +20,6 @@ public class DatabaseContract {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.li.itcc.hackathon15.poi";
 
         public static final String _ID = BaseColumns._ID;
-        public static final String POI_ID = "poi_id";
         public static final String POI_NAME = "poi_name";
         public static final String POI_SHORT_DESCRIPTION = "poi_short_desc";
         public static final String POI_LONGITUDE = "poi_longitude";
