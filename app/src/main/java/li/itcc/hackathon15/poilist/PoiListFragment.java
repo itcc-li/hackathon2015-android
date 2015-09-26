@@ -1,5 +1,7 @@
 package li.itcc.hackathon15.poilist;
 
+import java.text.DecimalFormat;
+
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,8 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.widget.ImageView;
-import android.widget.ResourceCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,24 +19,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
 import li.itcc.hackathon15.database.DatabaseContract;
-import li.itcc.hackathon15.gps.GPSDeliverer;
-import li.itcc.hackathon15.gps.GPSLocationListener;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
+import li.itcc.hackathon15.util.ExceptionHandler;
+import li.itcc.hackathon15.util.ThumbnailCache;
 
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, PoiAddOnClickListener.LocationProvider, GPSLocationListener {
+public class PoiListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, PoiListLoader.PoiListLoaderListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private DecimalFormat FORMAT_0 = new DecimalFormat("#,##0");
     private DecimalFormat FORMAT_1 = new DecimalFormat("#,##0.0");
     private PoiCursorAdapter fDataAdapter;
@@ -44,8 +50,9 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
     private TextView fEmptyText;
     private View fCreateButton;
     private Location fLocation;
-    private GPSDeliverer fGpsDeliverer;
     private ThumbnailCache fThumbnailCache;
+    private ProgressBar fProgressBar;
+    private GoogleApiClient fGoogleApiClient;
 
     public PoiListFragment() {
     }
@@ -64,8 +71,10 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         fListView = (ListView) rootView.findViewById(android.R.id.list);
         fEmptyText = (TextView) rootView.findViewById(android.R.id.empty);
         fCreateButton = rootView.findViewById(R.id.viw_add_button);
-        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
-        fCreateButton.setVisibility(View.INVISIBLE);
+        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
+        fProgressBar = (ProgressBar)rootView.findViewById(R.id.prb_progress);
+        fProgressBar.setMax(100);
+        fProgressBar.setVisibility(View.GONE);
         fDataAdapter = new PoiCursorAdapter(activity);
         fListView.setAdapter(fDataAdapter);
         fListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -78,36 +87,69 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         return rootView;
     }
 
-    private void onListItemClick(int position, long id) {
-        Cursor c = (Cursor)fDataAdapter.getItem(position);
-        long poiId = c.getLong(c.getColumnIndex(DatabaseContract.Pois.POI_ID));
-        PoiDetailActivity.start(getActivity(), poiId);
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof TitleHolder) {
+            ((TitleHolder) context).setTitleId(R.string.title_poi_list);
+        }
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        // Indicate that this fragment would like to influence the set of actions in the action bar.
+        setHasOptionsMenu(true);
+        // start loading
+        buildGoogleApiClient();
         getLoaderManager().initLoader(0, null, this);
-        fGpsDeliverer = new GPSDeliverer(getActivity(), 0L);
-        fGpsDeliverer.setListener(this);
-        fGpsDeliverer.setAutoReset(false);
-        fGpsDeliverer.startDelivery();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (fGoogleApiClient.isConnected()) {
+            fGoogleApiClient.disconnect();
+        }
+    }
+
+    private void onListItemClick(int position, long id) {
+        Cursor c = (Cursor)fDataAdapter.getItem(position);
+        String poiId = c.getString(c.getColumnIndex(DatabaseContract.Pois._ID));
+        PoiDetailActivity.start(getActivity(), poiId);
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        Context context = getContext();
+        fGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //inflater.inflate(R.menu.add_poi, menu);
+        inflater.inflate(R.menu.poi_list, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //if (item.getItemId() == R.id.action_add_poi) {
-        //    Intent intent = AddBookActivity.createStartIntent(getActivity());
-        //    startActivity(intent);
-        //    return true;
-        //}
-        return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.action_refresh) {
+            fProgressBar.setVisibility(View.VISIBLE);
+            new PoiListLoader(getContext(), this).refresh();
+            return true;
+        }
+        else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     private void updateTableVisibility() {
@@ -118,6 +160,24 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             fEmptyText.setVisibility(View.GONE);
             fListView.setVisibility(View.VISIBLE);
         }
+    }
+
+    // list refreshing
+
+    @Override
+    public void onTaskAborted(Throwable th) {
+        fProgressBar.setVisibility(View.GONE);
+        new ExceptionHandler(getActivity()).onTaskAborted(th);
+    }
+
+    @Override
+    public void onTaskCompleted(PoiOverviewListBean poiOverviewListBean) {
+        fProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onTaskProgress(int percentage) {
+        fProgressBar.setProgress(percentage);
     }
 
     //// loader callbacks
@@ -135,16 +195,9 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        fThumbnailCache.clearCache();
         this.fDataAdapter.swapCursor(data);
         updateTableVisibility();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof TitleHolder) {
-            ((TitleHolder) context).setTitleId(R.string.title_poi_list);
-        }
     }
 
     @Override
@@ -152,33 +205,30 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         this.fDataAdapter.swapCursor(null);
     }
 
-    @Override
-    public Location getLocation() {
-        return fLocation;
-    }
 
-    @Override
-    public void onLocation(Location location) {
+    public void setLocation(Location location) {
         if (location == null) {
             return;
         }
         fLocation = location;
-        fCreateButton.setVisibility(View.VISIBLE);
         fDataAdapter.notifyDataSetChanged();
     }
 
+    // google api callbacks
+
     @Override
-    public void onLocationSensorSearching() {
+    public void onConnected(Bundle bundle) {
+        Location lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(fGoogleApiClient);
+        setLocation(lastKnownLocation);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
 
     }
 
     @Override
-    public void onLocationSensorEnabled() {
-
-    }
-
-    @Override
-    public void onLocationSensorDisabled() {
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 
@@ -186,6 +236,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
         private final String[] fColumnNames;
         private final int[] fColumnIndices;
         private int POI_NAME_INDEX;
+        private int POI_SHORT_DESCRIPTION;
         private int POI_LATITUDE_INDEX;
         private int POI_LONGITUDE_INDEX;
         private int POI_ID_INDEX;
@@ -194,11 +245,12 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             super(context, R.layout.poi_list_row, null, FLAG_REGISTER_CONTENT_OBSERVER);
             int count = 0;
             POI_NAME_INDEX = count++;
+            POI_SHORT_DESCRIPTION = count++;
             POI_LATITUDE_INDEX = count++;
             POI_LONGITUDE_INDEX = count++;
             POI_ID_INDEX = count++;
             // Note: must be same order
-            fColumnNames = new String[]{DatabaseContract.Pois.POI_NAME, DatabaseContract.Pois.POI_LATITUDE, DatabaseContract.Pois.POI_LONGITUDE, DatabaseContract.Pois.POI_ID};
+            fColumnNames = new String[]{DatabaseContract.Pois.POI_NAME, DatabaseContract.Pois.POI_SHORT_DESCRIPTION, DatabaseContract.Pois.POI_LATITUDE, DatabaseContract.Pois.POI_LONGITUDE, DatabaseContract.Pois._ID};
             fColumnIndices = new int[fColumnNames.length];
         }
 
@@ -225,6 +277,9 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             // name
             TextView name = (TextView) view.findViewById(R.id.txv_poi_name);
             name.setText(cursor.getString(fColumnIndices[POI_NAME_INDEX]));
+            // short description
+            TextView description = (TextView) view.findViewById(R.id.txv_description);
+            description.setText(cursor.getString(fColumnIndices[POI_SHORT_DESCRIPTION]));
             // distance
             TextView distance = (TextView) view.findViewById(R.id.txv_poi_distance);
             if (fLocation != null) {
@@ -243,10 +298,10 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
                 }
                 distance.setText(distanceText);
             } else {
-                distance.setText(R.string.searching_);
+                distance.setText("");
             }
             // thumb
-            long id = cursor.getLong(fColumnIndices[POI_ID_INDEX]);
+            String id = cursor.getString(fColumnIndices[POI_ID_INDEX]);
             ImageView imageView = (ImageView) view.findViewById(R.id.imv_thumbnail);
             imageView.setImageBitmap(fThumbnailCache.getBitmap(id));
         }

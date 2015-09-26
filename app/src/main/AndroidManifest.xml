@@ -14,14 +14,13 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="li.itcc.hackathon15.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,21 +28,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-        <activity android:name=".poiadd.PoiAddActivity"/>
-
-        <activity android:name=".poidetail.PoiDetailActivity"/>
-
-
+        <activity android:name=".poiadd.PoiAddActivity" />
+        <activity android:name=".poidetail.PoiDetailActivity" />
+        <activity android:name=".exactlocation.ExactLocationActivity" />
 
         <provider
             android:name=".database.PoiContentProvider"
-            android:authorities="li.itcc.provider.hackathon15"/>
+            android:authorities="li.itcc.provider.hackathon15" />
 
+        <receiver android:name=".util.ConnectivityChangeReceiver" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyBNkEp6jz3pBholS9jIx0nWTmj8ow09Buk"/>
-
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBNkEp6jz3pBholS9jIx0nWTmj8ow09Buk" />
     </application>
 
 </manifest>

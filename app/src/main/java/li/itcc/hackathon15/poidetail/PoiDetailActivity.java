@@ -15,14 +15,14 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import li.itcc.hackathon15.R;
-import li.itcc.hackathon15.ToastResultListener;
-import li.itcc.hackathon15.poiadd.PoiAddSaver;
-import li.itcc.hackathon15.services.PoiFullDetailBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiDetailBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
+import li.itcc.hackathon15.util.ExceptionHandler;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoader.PoiDetailLoadDoneListener {
+public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoader.PoiDetailLoaderListener {
     private static final String KEY_ID = "KEY_ID";
     private TextView fName;
     private EditText fComment;
@@ -30,8 +30,9 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
     private Location fLocation;
     private ImageView fImage;
     private ProgressBar fProgressBar;
+    private TextView fDescription;
 
-    public static void start(Activity parent, long poiId) {
+    public static void start(Activity parent, String poiId) {
         Intent i = new Intent(parent, PoiDetailActivity.class);
         i.putExtra(KEY_ID, poiId);
         parent.startActivityForResult(i, 0);
@@ -42,32 +43,46 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.poi_detail_activity);
         fName = (TextView)findViewById(R.id.txv_name);
+        fDescription = (TextView)findViewById(R.id.txv_description);
         fRating = (RatingBar)findViewById(R.id.rbr_rating);
         fRating.setIsIndicator(true);
         fImage = (ImageView)findViewById(R.id.img_image);
         fProgressBar = (ProgressBar)findViewById(R.id.prb_progress);
-        fProgressBar.setIndeterminate(true);
+        fProgressBar.setMax(100);
         fProgressBar.setVisibility(View.VISIBLE);
-        long id = getIntent().getExtras().getLong(KEY_ID);
+        String id = getIntent().getExtras().getString(KEY_ID);
         new PoiDetailLoader(this, this).load(id);
     }
 
-
     @Override
-    public void onPoiDetailsLoaded(PoiFullDetailBean data, Throwable th) {
+    public void onTaskCompleted(PoiDetailBean data) {
         fProgressBar.setVisibility(View.GONE);
-        if (th != null) {
-            new ToastResultListener(this).onRefreshDone(th);
-            return;
-        }
-        // show the data
-        byte[] image = data.getImage();
-        if (image != null) {
-            Bitmap bmp = BitmapFactory.decodeByteArray(image, 0, image.length);
+        if (data.getImageUrl() != null) {
+            // the image has been downloaded
+            ImageStore store = new ImageStore(this);
+            ImageStore.Key key = store.createKey(data.getOverview().getUuid(), data.getImageUpdateTime());
+            Bitmap bmp = BitmapFactory.decodeFile(store.getImageFilePath(key));
             fImage.setImageBitmap(bmp);
         }
-        fRating.setRating(data.getRating());
-        fName.setText(data.getPoiName());
-
+        else {
+            fImage.setImageDrawable(null);
+        }
+        PoiOverviewBean overviewData = data.getOverview();
+        fRating.setRating(overviewData.getRating());
+        fName.setText(overviewData.getName());
+        fDescription.setText(data.getDescription());
     }
+
+    @Override
+    public void onTaskProgress(int percentage) {
+        fProgressBar.setProgress(percentage);
+    }
+
+    @Override
+    public void onTaskAborted(Throwable th) {
+        fProgressBar.setVisibility(View.GONE);
+        new ExceptionHandler(this).onTaskAborted(th);
+    }
+
+
 }

@@ -8,7 +8,7 @@
     <string name="navigation_drawer_open">Open</string>
     <string name="navigation_drawer_close">Close</string>
 
-    <string name="action_example">Refresh</string>
+    <string name="action_refresh">Refresh</string>
 
     <string name="action_settings">Settings</string>
     <string name="txt_no_pois_available">No Flypostr available</string>
@@ -22,8 +22,6 @@
     <string name="searching_">Searching...</string>
     <string name="delete_warning">In this version you can\'t delete your post</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="definition_flypostr1">
         Flyposter:
     </string>
@@ -58,6 +56,19 @@ Simon Meier,
 Thomas Elsensohn
     </string>
     <string name="my_location">My location</string>
+    <string name="refreshing_">Refreshing...</string>
+    <string name="done">Done</string>
+    <string name="txt_select_picture">Select picture</string>
+    <string name="txt_input_missing">Eingabe fehlt</string>
+    <string name="txt_input_too_short">Eingabe zu kurz</string>
+    <string name="txt_input_too_long">Eingabe zu lang</string>
+    <string name="txt_location_missing">Speichern nicht möglich, Ihr Standort konnte noch nicht lokalisiert werden.</string>
+    <string name="txt_your_location_gets_determined">Ihre Position wird ermittelt...</string>
+    <string name="txt_lat_long_precision">{0} N, {1} O\nGenauigkeit: {2} m</string>
+    <string name="txt_drag_me">Drag me</string>
+    <string name="txt_drag_me_snippet">Define exact location\nby dragging</string>
+    <string name="txt_satellite">Satellit</string>
+    <string name="txt_my_location">Meine Position</string>
 
 
 </resources>

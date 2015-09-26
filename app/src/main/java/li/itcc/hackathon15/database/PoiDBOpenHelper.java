@@ -5,19 +5,22 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-class PoiDBOpenHelper extends SQLiteOpenHelper {
+import li.itcc.hackathon15.poiadd.UploadTable;
 
-    private static final String DATABASE_NAME = "SummitBookDatabase.db";
-    private static final int DATABASE_VERSION = 1;
+public class PoiDBOpenHelper extends SQLiteOpenHelper {
+
+    private static final String DATABASE_NAME = "PoiDatabase.db";
+    private static final int DATABASE_VERSION = 4;
 
     // SQL Statement to create a new database.
-    private static final String DATABASE_CREATE = "create table " +
+    private static final String CREATE_POI_TABLE = "create table " +
     PoiDatabaseConstants.TABLE_POIS + " (" + DatabaseContract.Pois._ID +
-    " integer primary key autoincrement, " +
-    DatabaseContract.Pois.POI_ID + " integer, " +
+    " string primary key, " +
     DatabaseContract.Pois.POI_LONGITUDE + " real, " +
     DatabaseContract.Pois.POI_LATITUDE + " real, " +
-    DatabaseContract.Pois.POI_NAME + " string not null);";
+    DatabaseContract.Pois.POI_NAME + " string not null, " +
+    DatabaseContract.Pois.POI_SHORT_DESCRIPTION + " string);";
+
 
     public PoiDBOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -27,7 +30,8 @@ class PoiDBOpenHelper extends SQLiteOpenHelper {
     // to create a new one.
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(DATABASE_CREATE);
+        db.execSQL(CREATE_POI_TABLE);
+        UploadTable.createTable(db);
     }
 
     // Called when there is a database version mismatch meaning that
@@ -45,7 +49,8 @@ class PoiDBOpenHelper extends SQLiteOpenHelper {
         // comparing oldVersion and newVersion values.
 
         // The simplest case is to drop the old table and create a new one.
-        db.execSQL("DROP TABLE IF IT EXISTS " + PoiDatabaseConstants.TABLE_POIS);
+        db.execSQL("DROP TABLE IF EXISTS " + PoiDatabaseConstants.TABLE_POIS);
+        UploadTable.dropTable(db);
         // Create a new one.
         onCreate(db);
     }

@@ -37,20 +37,22 @@
 
 
             <TextView
-                android:id="@+id/txv_poi_distance"
+                android:id="@+id/txv_description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
                 android:textSize="12sp"
+                android:maxLines="2"
                 android:layout_weight="1"/>
 
+
             <TextView
-                android:id="@+id/txv_rating"
+                android:id="@+id/txv_poi_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
                 android:textSize="12sp"
                 android:layout_weight="0"/>
-
 
         </LinearLayout>
 

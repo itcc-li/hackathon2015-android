@@ -1,52 +1,56 @@
 package li.itcc.hackathon15.poimap;
 
 
+import java.util.HashMap;
+
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
-import android.support.v4.app.LoaderManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.database.DatabaseContract;
-import li.itcc.hackathon15.gps.GPSDeliverer;
-import li.itcc.hackathon15.gps.GPSLocationListener;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
+import li.itcc.hackathon15.util.ThumbnailCache;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiMapFragment extends SupportMapFragment implements GPSLocationListener, LoaderManager.LoaderCallbacks<Cursor>,PoiAddOnClickListener.LocationProvider {
-    private GoogleMap fMap;
-    private int fFunction;
-    private GPSDeliverer fGpsDeliverer;
-    private int fPointCounter;
-    private Marker fMarker;
-    private HashMap<Marker, Long> fMarkers = new HashMap<>();
+public class PoiMapFragment extends SupportMapFragment implements LoaderManager.LoaderCallbacks<Cursor>, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    private static final String KEY_LOCATION_ZOOM_DONE = "KEY_LOCATION_ZOOM_DONE";
+    private GoogleMap fGoogleMap;
+    private HashMap<Marker, String> fMarkers = new HashMap<>();
     private View fCreateButton;
     private Location fLocation;
+    private boolean fLocationZoomDone = false;
+    private GoogleApiClient fGoogleApiClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,45 +60,38 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            fLocationZoomDone = savedInstanceState.getBoolean(KEY_LOCATION_ZOOM_DONE);
+        }
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        // trick: we have to add a floating button so we add an extra layer
-        container.removeView(v);
-        fMap = getMap();
-        fMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+        fGoogleMap = getMap();
+        fGoogleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
                 onClick(marker);
             }
         });
-        View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
-        FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
-        fCreateButton = rootView.findViewById(R.id.viw_add_button);
-        fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity(), this));
-        // we have to wait for the current location.
-        fCreateButton.setEnabled(false);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        container.removeView(v);
-        frame.addView(v, params);
-        return rootView;
-    }
-
-    private boolean onClick(Marker marker) {
-        Long id = fMarkers.get(marker);
-        if (id != null) {
-            PoiDetailActivity.start(getActivity(), id.longValue());
+        fGoogleMap.setMyLocationEnabled(false);
+        fGoogleMap.setInfoWindowAdapter(new PoiInfoWindowAdapter());
+        fGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        UiSettings setting = fGoogleMap.getUiSettings();
+        setting.setMapToolbarEnabled(false);
+        setting.setMyLocationButtonEnabled(true);
+        // trick: we have to add a floating button so we add an extra layer
+        boolean addButton = true;
+        if (addButton) {
+            container.removeView(v);
+            View rootView = inflater.inflate(R.layout.poi_map_fragment, container, false);
+            FrameLayout frame = (FrameLayout)rootView.findViewById(R.id.frame_layout);
+            fCreateButton = rootView.findViewById(R.id.viw_add_button);
+            fCreateButton.setOnClickListener(new PoiAddOnClickListener(getActivity()));
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            container.removeView(v);
+            frame.addView(v, params);
+            return rootView;
         }
-        return true;
+        return v;
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //if (item.getItemId() == R.id.action_example) {
-        //    exampleAction();
-        //    return true;
-        //}
-        return super.onOptionsItemSelected(item);
-    }
-
 
     @Override
     public void onAttach(Context context) {
@@ -105,53 +102,115 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(0, null, this);
-        fGpsDeliverer = new GPSDeliverer(getActivity(), 0L);
-        fGpsDeliverer.setListener(this);
-        fGpsDeliverer.setAutoReset(false);
-        fGpsDeliverer.startDelivery();
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.poi_map, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
-    public void onLocation(Location location) {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_satellite) {
+            if (item.isChecked()) {
+                item.setChecked(false);
+                fGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            }
+            else {
+                item.setChecked(true);
+                fGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            }
+            return true;
+        }
+        else if (item.getItemId() == R.id.action_my_location) {
+            if (item.isChecked()) {
+                item.setChecked(false);
+                fGoogleMap.setMyLocationEnabled(false);
+            }
+            else {
+                item.setChecked(true);
+                fGoogleMap.setMyLocationEnabled(true);
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // start loading
+        buildGoogleApiClient();
+        getLoaderManager().initLoader(0, null, this);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (fGoogleApiClient.isConnected()) {
+            fGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_LOCATION_ZOOM_DONE, fLocationZoomDone);
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        Context context = getContext();
+        fGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    private boolean onClick(Marker marker) {
+        String id = fMarkers.get(marker);
+        if (id != null) {
+            PoiDetailActivity.start(getActivity(), id);
+        }
+        return true;
+    }
+
+    // google api client
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Location lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(fGoogleApiClient);
+        setLocation(lastKnownLocation);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
+
+    public void setLocation(Location location) {
         if (location == null) {
             return;
         }
+        if (!isAdded()) {
+            return;
+        }
         fLocation = location;
-        fCreateButton.setEnabled(true);
-        LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
-        String title = getResources().getString(R.string.my_location);
-        fMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.5f));
-        if (fMarker == null) {
-            fMarker = fMap.addMarker(new MarkerOptions()
-                    .title(title)
-                    .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.my_pin)));
+        if (!fLocationZoomDone) {
+            // only zoom once
+            LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
+            fGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 11.5f));
+            fLocationZoomDone = true;
         }
-        else {
-            fMarker.setPosition(loc);
-            fMarker.setTitle(title);
-        }
-        if (fGpsDeliverer != null) {
-            fGpsDeliverer.stopDelivery();
-            fGpsDeliverer = null;
-        }
-    }
-
-    @Override
-    public void onLocationSensorSearching() {
-
-    }
-
-    @Override
-    public void onLocationSensorEnabled() {
-
-    }
-
-    @Override
-    public void onLocationSensorDisabled() {
-
     }
 
     @Override
@@ -174,27 +233,31 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
         int longitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LONGITUDE);
         int latitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LATITUDE);
         int nameCol = data.getColumnIndex(DatabaseContract.Pois.POI_NAME);
-        int idCol = data.getColumnIndex(DatabaseContract.Pois.POI_ID);
+        int descrCol = data.getColumnIndex(DatabaseContract.Pois.POI_SHORT_DESCRIPTION);
+        int idCol = data.getColumnIndex(DatabaseContract.Pois._ID);
         if (data.moveToFirst()) {
             do {
                 double longitude = data.getDouble(longitudeCol);
                 double latitude = data.getDouble(latitudeCol);
                 String name = data.getString(nameCol);
-                long id = data.getLong(idCol);
+                String shortDescr = data.getString(descrCol);
+                String id = data.getString(idCol);
                 LatLng loc = new LatLng(latitude, longitude);
-                Marker marker = fMap.addMarker(new MarkerOptions()
-                        .title(name)
-                        .position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.poi_pin)));
-                fMarkers.put(marker, new Long(id));
+                MarkerOptions options = new MarkerOptions();
+                options.position(loc).draggable(true).title(name).snippet(shortDescr);
+                //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_48dp));
+                Marker marker = fGoogleMap.addMarker(options);
+                fMarkers.put(marker, id);
             } while (data.moveToNext());
 
         }
     }
 
     private void clearAllMarkers() {
-        for (Marker marker: fMarkers.keySet()) {
-            marker.remove();
-        }
+        //for (Marker marker : fMarkers.keySet()) {
+        //    marker.remove();
+        //}
+        fGoogleMap.clear();
         fMarkers.clear();
     }
 
@@ -203,10 +266,50 @@ public class PoiMapFragment extends SupportMapFragment implements GPSLocationLis
 
     }
 
-    @Override
-    public Location getLocation() {
-        return fLocation;
+    public class PoiInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        private ThumbnailCache fCache;
+        private View fView;
+        private ImageView fImage;
+        private TextView fName;
+        private TextView fDescription;
+
+
+        public PoiInfoWindowAdapter() {
+            fCache = new ThumbnailCache(getContext());
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            String id = fMarkers.get(marker);
+            if (id == null) {
+                return null;
+            }
+            Bitmap bitmap = fCache.getBitmap(id);
+            if (bitmap == null) {
+                return null;
+            }
+            if (fView == null) {
+                fView = getLayoutInflater(null).inflate(R.layout.map_info_window, null);
+                fImage = (ImageView)fView.findViewById(R.id.imv_thumbnail);
+                fName = (TextView)fView.findViewById(R.id.txv_poi_name);
+                fDescription = (TextView)fView.findViewById(R.id.txv_description);
+            }
+            fImage.setImageBitmap(bitmap);
+            fName.setText(marker.getTitle());
+            String snippet = marker.getSnippet();
+            if (snippet == null || snippet.length() == 0) {
+                fDescription.setVisibility(View.GONE);
+            }
+            else {
+                fDescription.setText(snippet);
+                fDescription.setVisibility(View.VISIBLE);
+            }
+            return fView;
+        }
     }
-
-
 }
