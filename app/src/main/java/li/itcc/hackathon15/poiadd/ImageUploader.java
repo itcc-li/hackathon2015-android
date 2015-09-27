@@ -13,7 +13,7 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import li.itcc.hackathon15.ReleaseConfig;
+import li.itcc.hackathon15.config.CloudEndpoint;
 import li.itcc.hackathon15.services.PoiServices;
 import li.itcc.hackathon15.util.StreamUtil;
 
@@ -46,7 +46,7 @@ public class ImageUploader {
         // stream is ready, get url to upload
         String postURL = fServices.getImageUploadUrl().getUrl();
         // patch the url for local testing
-        postURL = ReleaseConfig.dnsHack(postURL);
+        postURL = CloudEndpoint.dnsHack(postURL);
         URL url = new URL(postURL);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.setRequestMethod("POST");

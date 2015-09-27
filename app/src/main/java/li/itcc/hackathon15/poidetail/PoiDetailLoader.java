@@ -6,7 +6,7 @@ import java.net.URL;
 
 import android.content.Context;
 
-import li.itcc.hackathon15.ReleaseConfig;
+import li.itcc.hackathon15.config.CloudEndpoint;
 import li.itcc.hackathon15.backend.poiApi.model.PoiDetailBean;
 import li.itcc.hackathon15.services.PoiServices;
 import li.itcc.hackathon15.util.StreamUtil;
@@ -41,7 +41,7 @@ public class PoiDetailLoader {
         @Override
         protected PoiDetailBean doInBackgroundOrThrow(String... params) throws Exception {
             String param = params[0];
-            PoiServices poiServices = new PoiServices(fContext, ReleaseConfig.URL);
+            PoiServices poiServices = new PoiServices(fContext, CloudEndpoint.URL);
             PoiDetailBean detail = poiServices.getPoiDetails(params[0]);
             // load image if available
             String imageUrl = detail.getImageUrl();
@@ -51,7 +51,7 @@ public class PoiDetailLoader {
                 // check if download of image is needed
                 if (!store.exists(key)) {
                     // patch host for testing
-                    imageUrl = ReleaseConfig.dnsHack(imageUrl);
+                    imageUrl = CloudEndpoint.dnsHack(imageUrl);
                     InputStream in = new URL(imageUrl).openStream();
                     OutputStream out = store.createImage(key);
                     StreamUtil.pumpAllAndClose(in, out, detail.getImageSize(), this);

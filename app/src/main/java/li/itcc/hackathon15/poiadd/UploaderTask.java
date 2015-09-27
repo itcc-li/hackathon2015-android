@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import li.itcc.hackathon15.ReleaseConfig;
+import li.itcc.hackathon15.config.CloudEndpoint;
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.database.PoiDBOpenHelper;
@@ -32,7 +32,7 @@ public class UploaderTask extends AsyncTask<Void, Void, Void> {
             // check if we have anything to upload
             PoiDBOpenHelper dbOpenHelper = new PoiDBOpenHelper(fContext);
             db = dbOpenHelper.getWritableDatabase();
-            PoiServices poiServices = new PoiServices(fContext, ReleaseConfig.URL);
+            PoiServices poiServices = new PoiServices(fContext, CloudEndpoint.URL);
             while (true) {
                 if (!executeUpload(db, poiServices)) {
                     break;

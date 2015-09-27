@@ -1,4 +1,4 @@
-package li.itcc.hackathon15;
+package li.itcc.hackathon15.config;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -6,13 +6,13 @@ import java.net.URL;
 /**
  * Created by Arthur on 17.09.2015.
  */
-public class ReleaseConfig {
+public class CloudEndpoint {
     // see https://cloud.google.com/datastore/docs/tools/devserver
     // maybe use env variable DATASTORE_HOST for that
     //
     // and see also JVM argument -Ddatastore.backing_store="D:\Temp\local_db.bin"
 
-    private static final String DEBUG_SERVER = "192.168.160.2";
+    private static final String DEBUG_SERVER = "192.168.0.132";
     public static final String URL = "http://" + DEBUG_SERVER + ":8080";
 
     /**

@@ -36,6 +36,25 @@ android {
         }
     }
 
+    productFlavors {
+
+        production {
+            // for release with release backend on google cloud
+            applicationId "li.itcc.hackathon15"
+        }
+
+        staging {
+            // for testing with staging backend on google cloud
+            applicationId "li.itcc.hackathon15.staging"
+        }
+
+        local {
+            // for testing with local backend
+            applicationId "li.itcc.hackathon15.local"
+        }
+    }
+
+
     lintOptions {
         abortOnError false
     }
