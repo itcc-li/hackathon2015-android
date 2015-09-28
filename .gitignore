@@ -11,6 +11,7 @@ local.properties
 
 # Android Studio Local configuration file
 **/*.iml
+!/hackathon2015-android.iml
 .idea/gradle.xml
 .idea/libraries
 .idea/tasks.xml
