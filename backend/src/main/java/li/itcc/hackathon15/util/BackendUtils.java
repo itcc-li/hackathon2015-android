@@ -1,13 +1,13 @@
 package li.itcc.hackathon15.util;
 
-import java.io.IOException;
-
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreInputStream;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.repackaged.com.google.common.io.ByteStreams;
+
+import java.io.IOException;
 
 /**
  * Created by Arthur on 19.09.2015.
@@ -32,7 +32,9 @@ public class BackendUtils {
             throwBadRequest(blobKey, "Image type must be jpg");
         }
         int requestedImageSize = 1080;
-        if (theImage.getWidth() != requestedImageSize || theImage.getHeight() != requestedImageSize) {
+        int theImageWidth = theImage.getWidth();
+        int theImageHeight = theImage.getHeight();
+        if (theImageWidth != requestedImageSize || theImageHeight != requestedImageSize) {
             throwBadRequest(blobKey, "Image size must be " + requestedImageSize);
         }
         return theImage;

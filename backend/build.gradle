@@ -24,9 +24,9 @@ targetCompatibility = JavaVersion.VERSION_1_7
 compileJava.options.encoding = 'UTF-8'
 
 dependencies {
-    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.26'
-    compile 'com.google.appengine:appengine-endpoints:1.9.26'
-    compile 'com.google.appengine:appengine-endpoints-deps:1.9.26'
+    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.18'
+    compile 'com.google.appengine:appengine-endpoints:1.9.18'
+    compile 'com.google.appengine:appengine-endpoints-deps:1.9.18'
     // see http://search.maven.org/#search|gav|1|g%3A%22com.googlecode.objectify%22%20AND%20a%3A%22objectify%22
     compile 'com.googlecode.objectify:objectify:5.1.8'
     compile 'javax.servlet:servlet-api:2.5'
