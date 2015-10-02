@@ -1,12 +1,11 @@
 package li.itcc.hackathon15.poidetail;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import android.content.Context;
-import android.os.Environment;
 
 /**
  * Created by Arthur on 21.09.2015.
@@ -49,8 +48,8 @@ public class ImageStore {
     }
 
     private File getFile(Key key) {
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        return new File(storageDir, "Flypostr_PoiImg_" + key.fId + "_" + key.fTimeStamp + ".jpg");
+        File dir = fContext.getDir("ImageCache", Context.MODE_PRIVATE);
+        return new File(dir, "PoiImg_" + key.fId + "_" + key.fTimeStamp + ".jpg");
     }
 
 }

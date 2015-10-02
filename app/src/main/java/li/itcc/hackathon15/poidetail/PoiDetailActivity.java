@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
@@ -17,12 +19,11 @@ import android.widget.TextView;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.backend.poiApi.model.PoiDetailBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
-import li.itcc.hackathon15.util.ExceptionHandler;
 
 /**
  * Created by Arthur on 12.09.2015.
  */
-public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoader.PoiDetailLoaderListener {
+public class PoiDetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<PoiDetailBean> {
     private static final String KEY_ID = "KEY_ID";
     private TextView fName;
     private EditText fComment;
@@ -31,6 +32,7 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
     private ImageView fImage;
     private ProgressBar fProgressBar;
     private TextView fDescription;
+    private Loader<PoiDetailBean> fLoader;
 
     public static void start(Activity parent, String poiId) {
         Intent i = new Intent(parent, PoiDetailActivity.class);
@@ -48,14 +50,19 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
         fRating.setIsIndicator(true);
         fImage = (ImageView)findViewById(R.id.img_image);
         fProgressBar = (ProgressBar)findViewById(R.id.prb_progress);
-        fProgressBar.setMax(100);
+        fProgressBar.setIndeterminate(true);
         fProgressBar.setVisibility(View.VISIBLE);
         String id = getIntent().getExtras().getString(KEY_ID);
-        new PoiDetailLoader(this, this).load(id);
+        getSupportLoaderManager().initLoader(0, PoiDetailLoader.createArgs(id), this);
     }
 
     @Override
-    public void onTaskCompleted(PoiDetailBean data) {
+    public Loader<PoiDetailBean> onCreateLoader(int id, Bundle args) {
+        return new PoiDetailLoader(this, id, args);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<PoiDetailBean> loader, PoiDetailBean data) {
         fProgressBar.setVisibility(View.GONE);
         if (data.getImageUrl() != null) {
             // the image has been downloaded
@@ -74,15 +81,7 @@ public class PoiDetailActivity extends AppCompatActivity implements PoiDetailLoa
     }
 
     @Override
-    public void onTaskProgress(int percentage) {
-        fProgressBar.setProgress(percentage);
+    public void onLoaderReset(Loader<PoiDetailBean> loader) {
+
     }
-
-    @Override
-    public void onTaskAborted(Throwable th) {
-        fProgressBar.setVisibility(View.GONE);
-        new ExceptionHandler(this).onTaskAborted(th);
-    }
-
-
 }
