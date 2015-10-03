@@ -1,19 +1,23 @@
 package li.itcc.hackathon15.poiadd;
 
-import java.io.InputStream;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.util.Log;
 
-import li.itcc.hackathon15.config.CloudEndpoint;
+import java.io.InputStream;
+
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
+import li.itcc.hackathon15.config.CloudEndpoint;
+import li.itcc.hackathon15.database.DatabaseContract;
 import li.itcc.hackathon15.database.PoiDBOpenHelper;
-import li.itcc.hackathon15.database.PoiTableUpdater;
+import li.itcc.hackathon15.database.tables.PoiOverviewTable;
+import li.itcc.hackathon15.database.tables.UploadTable;
 import li.itcc.hackathon15.services.PoiServices;
+import li.itcc.hackathon15.util.ThumbnailCache;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -73,8 +77,14 @@ public class UploaderTask extends AsyncTask<Void, Void, Void> {
             // 2. insert bean to cloud
             PoiOverviewBean result = poiServices.insertPoi(param);
             // 3. insert the result into the local database
-            PoiTableUpdater updater = new PoiTableUpdater(fContext);
-            updater.insertPoiOverview(db, result);
+            PoiOverviewTable.insert(db, result);
+            // add thumbnail
+            String thumbnail = result.getThumbnailBase64();
+            if (thumbnail != null && thumbnail.length() > 0) {
+                byte[] thumbnailData = android.util.Base64.decode(thumbnail, Base64.DEFAULT);
+                ThumbnailCache cache = new ThumbnailCache(fContext);
+                cache.storeBitmap(result.getUuid(), thumbnailData);
+            }
             // delete local copy
             UploadTable.executeDeleteStatement(db, uuid);
             if (fileName != null) {
@@ -86,6 +96,7 @@ public class UploaderTask extends AsyncTask<Void, Void, Void> {
         }
         finally {
             db.endTransaction();
+            fContext.getContentResolver().notifyChange(DatabaseContract.Pois.CONTENT_URI, null);
         }
     }
 

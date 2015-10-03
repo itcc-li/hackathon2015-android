@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.database.DatabaseContract;
+import li.itcc.hackathon15.database.tables.PoiOverviewTable;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
 import li.itcc.hackathon15.util.ThumbnailCache;
@@ -230,11 +231,11 @@ public class PoiMapFragment extends SupportMapFragment implements LoaderManager.
         if (data == null) {
             return;
         }
-        int longitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LONGITUDE);
-        int latitudeCol = data.getColumnIndex(DatabaseContract.Pois.POI_LATITUDE);
-        int nameCol = data.getColumnIndex(DatabaseContract.Pois.POI_NAME);
-        int descrCol = data.getColumnIndex(DatabaseContract.Pois.POI_SHORT_DESCRIPTION);
-        int idCol = data.getColumnIndex(DatabaseContract.Pois._ID);
+        int longitudeCol = data.getColumnIndex(PoiOverviewTable.COL_LONGITUDE);
+        int latitudeCol = data.getColumnIndex(PoiOverviewTable.COL_LATITUDE);
+        int nameCol = data.getColumnIndex(PoiOverviewTable.COL_NAME);
+        int descrCol = data.getColumnIndex(PoiOverviewTable.COL_SHORT_DESCRIPTION);
+        int idCol = data.getColumnIndex(PoiOverviewTable.COL_ID);
         if (data.moveToFirst()) {
             do {
                 double longitude = data.getDouble(longitudeCol);

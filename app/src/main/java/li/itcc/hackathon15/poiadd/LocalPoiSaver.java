@@ -14,6 +14,7 @@ import android.util.Log;
 
 import li.itcc.hackathon15.backend.poiApi.model.PoiCreateBean;
 import li.itcc.hackathon15.database.PoiDBOpenHelper;
+import li.itcc.hackathon15.database.tables.UploadTable;
 import li.itcc.hackathon15.util.StreamUtil;
 
 /**

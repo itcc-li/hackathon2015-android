@@ -1,12 +1,12 @@
 package li.itcc.hackathon15.util;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
 
 import li.itcc.hackathon15.R;
 
@@ -79,4 +79,7 @@ public class ThumbnailCache {
         return "thumb_" + key;
     }
 
+    public boolean existsBitmap(String uuid) {
+        return fContext.getFileStreamPath(getFileName(uuid)).exists();
+    }
 }

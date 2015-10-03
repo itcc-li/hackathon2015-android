@@ -64,20 +64,24 @@ public class PoiDetailActivity extends AppCompatActivity implements LoaderManage
     @Override
     public void onLoadFinished(Loader<PoiDetailBean> loader, PoiDetailBean data) {
         fProgressBar.setVisibility(View.GONE);
-        if (data.getImageUrl() != null) {
-            // the image has been downloaded
-            ImageStore store = new ImageStore(this);
-            ImageStore.Key key = store.createKey(data.getOverview().getUuid(), data.getImageUpdateTime());
-            Bitmap bmp = BitmapFactory.decodeFile(store.getImageFilePath(key));
-            fImage.setImageBitmap(bmp);
+        if (data == null) {
+
         }
         else {
-            fImage.setImageDrawable(null);
+            if (data.getImageUrl() != null) {
+                // the image has been downloaded
+                ImageStore store = new ImageStore(this);
+                ImageStore.Key key = store.createKey(data.getOverview().getUuid(), data.getImageUpdateTime());
+                Bitmap bmp = BitmapFactory.decodeFile(store.getImageFilePath(key));
+                fImage.setImageBitmap(bmp);
+            } else {
+                fImage.setImageDrawable(null);
+            }
+            PoiOverviewBean overviewData = data.getOverview();
+            fRating.setRating(overviewData.getRating());
+            fName.setText(overviewData.getName());
+            fDescription.setText(data.getDescription());
         }
-        PoiOverviewBean overviewData = data.getOverview();
-        fRating.setRating(overviewData.getRating());
-        fName.setText(overviewData.getName());
-        fDescription.setText(data.getDescription());
     }
 
     @Override

@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import li.itcc.hackathon15.database.tables.PoiOverviewTable;
+
 /**
  * Created by Arthur on 26.11.2014.
  */
@@ -52,11 +54,11 @@ public class PoiContentProvider extends ContentProvider {
         switch(devicesUriMatcher.match(uri)) {
         case SINGLE_ROW:
             String rowID = uri.getPathSegments().get(1);
-            queryBuilder.appendWhere(DatabaseContract.Pois._ID + "=" + rowID);
+            queryBuilder.appendWhere(PoiOverviewTable.COL_ID + "=" + rowID);
         default:
             break;
         }
-        queryBuilder.setTables(PoiDatabaseConstants.TABLE_POIS);
+        queryBuilder.setTables(PoiOverviewTable.TABLE_POI_OVERVIEW);
         Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, groupBy, having, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
@@ -80,7 +82,7 @@ public class PoiContentProvider extends ContentProvider {
         switch(devicesUriMatcher.match(uri)) {
         case SINGLE_ROW:
             String rowID = uri.getPathSegments().get(1);
-            selection = DatabaseContract.Pois._ID + "=" + rowID + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
+            selection = PoiOverviewTable.COL_ID + "=" + rowID + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
         default:
             break;
         }
@@ -89,7 +91,7 @@ public class PoiContentProvider extends ContentProvider {
         if (selection == null) {
             selection = "1";
         }
-        int deleteCount = db.delete(PoiDatabaseConstants.TABLE_POIS, selection, selectionArgs);
+        int deleteCount = db.delete(PoiOverviewTable.TABLE_POI_OVERVIEW, selection, selectionArgs);
         getContext().getContentResolver().notifyChange(uri, null);
         return deleteCount;
     }
@@ -97,7 +99,7 @@ public class PoiContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        long id = db.insert(PoiDatabaseConstants.TABLE_POIS, null, values);
+        long id = db.insert(PoiOverviewTable.TABLE_POI_OVERVIEW, null, values);
         if (id > -1) {
             Uri insertedId = ContentUris.withAppendedId(DatabaseContract.Pois.CONTENT_URI, id);
             getContext().getContentResolver().notifyChange(insertedId, null);
@@ -114,11 +116,11 @@ public class PoiContentProvider extends ContentProvider {
         switch(devicesUriMatcher.match(uri)) {
         case SINGLE_ROW:
             String rowID = uri.getPathSegments().get(1);
-            selection = DatabaseContract.Pois._ID + "=" + rowID + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
+            selection = PoiOverviewTable.COL_ID + "=" + rowID + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : "");
         default:
             break;
         }
-        int updateCount = db.update(PoiDatabaseConstants.TABLE_POIS, values, selection, selectionArgs);
+        int updateCount = db.update(PoiOverviewTable.TABLE_POI_OVERVIEW, values, selection, selectionArgs);
         getContext().getContentResolver().notifyChange(uri, null);
         return updateCount;
     }

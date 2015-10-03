@@ -33,6 +33,7 @@ import li.itcc.hackathon15.R;
 import li.itcc.hackathon15.TitleHolder;
 import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewListBean;
 import li.itcc.hackathon15.database.DatabaseContract;
+import li.itcc.hackathon15.database.tables.PoiOverviewTable;
 import li.itcc.hackathon15.poiadd.PoiAddOnClickListener;
 import li.itcc.hackathon15.poidetail.PoiDetailActivity;
 import li.itcc.hackathon15.util.ExceptionHandler;
@@ -121,7 +122,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void onListItemClick(int position, long id) {
         Cursor c = (Cursor)fDataAdapter.getItem(position);
-        String poiId = c.getString(c.getColumnIndex(DatabaseContract.Pois._ID));
+        String poiId = c.getString(c.getColumnIndex(PoiOverviewTable.COL_ID));
         PoiDetailActivity.start(getActivity(), poiId);
     }
 
@@ -250,7 +251,7 @@ public class PoiListFragment extends Fragment implements LoaderManager.LoaderCal
             POI_LONGITUDE_INDEX = count++;
             POI_ID_INDEX = count++;
             // Note: must be same order
-            fColumnNames = new String[]{DatabaseContract.Pois.POI_NAME, DatabaseContract.Pois.POI_SHORT_DESCRIPTION, DatabaseContract.Pois.POI_LATITUDE, DatabaseContract.Pois.POI_LONGITUDE, DatabaseContract.Pois._ID};
+            fColumnNames = new String[]{PoiOverviewTable.COL_NAME, PoiOverviewTable.COL_SHORT_DESCRIPTION, PoiOverviewTable.COL_LATITUDE, PoiOverviewTable.COL_LONGITUDE, PoiOverviewTable.COL_ID};
             fColumnIndices = new int[fColumnNames.length];
         }
 

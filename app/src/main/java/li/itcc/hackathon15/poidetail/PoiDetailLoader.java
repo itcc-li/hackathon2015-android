@@ -1,6 +1,7 @@
 package li.itcc.hackathon15.poidetail;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.os.OperationCanceledException;
@@ -10,9 +11,14 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import li.itcc.hackathon15.backend.poiApi.model.PoiDetailBean;
+import li.itcc.hackathon15.backend.poiApi.model.PoiOverviewBean;
 import li.itcc.hackathon15.config.CloudEndpoint;
+import li.itcc.hackathon15.database.PoiDBOpenHelper;
+import li.itcc.hackathon15.database.tables.PoiDetailTable;
+import li.itcc.hackathon15.database.tables.PoiOverviewTable;
 import li.itcc.hackathon15.services.PoiServices;
 import li.itcc.hackathon15.util.StreamUtil;
+import li.itcc.hackathon15.util.ThumbnailCache;
 
 /**
  * Created by Arthur on 12.09.2015.
@@ -40,16 +46,21 @@ public class PoiDetailLoader extends AsyncTaskLoader<PoiDetailBean> {
         try {
             Context context = getContext();
             String uuid = fArgs.getString(KEY_UUID);
-            PoiServices poiServices = new PoiServices(context, CloudEndpoint.URL);
-            PoiDetailBean detail = poiServices.getPoiDetails(uuid);
+            // see if we have all data offline available
+            PoiDetailBean detail = loadFromLocalDatabase(uuid);
+            if (detail == null) {
+                PoiServices poiServices = new PoiServices(context, CloudEndpoint.URL);
+                detail = poiServices.getPoiDetails(uuid);
+                storeToLocalDatabase(detail);
+            }
             if (isLoadInBackgroundCanceled()) {
                 throw new OperationCanceledException();
             }
             // load image if available
             String imageUrl = detail.getImageUrl();
-            ImageStore store = new ImageStore(context);
-            ImageStore.Key key = store.createKey(detail.getOverview().getUuid(), detail.getImageUpdateTime());
             if (imageUrl != null) {
+                ImageStore store = new ImageStore(context);
+                ImageStore.Key key = store.createKey(detail.getOverview().getUuid(), detail.getImageUpdateTime());
                 // check if download of image is needed
                 if (!store.exists(key)) {
                     // patch host for testing
@@ -62,6 +73,47 @@ public class PoiDetailLoader extends AsyncTaskLoader<PoiDetailBean> {
             return detail;
         } catch (Exception x) {
             x.printStackTrace();
+        }
+        return null;
+    }
+
+    private void storeToLocalDatabase(PoiDetailBean detail) {
+        PoiDBOpenHelper helper = new PoiDBOpenHelper(getContext());
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            String uuid = detail.getOverview().getUuid();
+            PoiDetailTable.deleteDetail(db, uuid);
+            PoiOverviewTable.deleteOverview(db, uuid);
+            PoiDetailTable.insert(db, detail);
+            PoiOverviewTable.insert(db, detail.getOverview());
+            db.setTransactionSuccessful();
+        }
+        finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
+
+    private PoiDetailBean loadFromLocalDatabase(String uuid) {
+        PoiDBOpenHelper helper = new PoiDBOpenHelper(getContext());
+        SQLiteDatabase db = helper.getReadableDatabase();
+        try {
+            PoiDetailBean result = PoiDetailTable.loadDetailBean(db, uuid);
+            if (result != null) {
+                PoiOverviewBean overviewBean = PoiOverviewTable.loadOverviewBean(db, uuid);
+                if (overviewBean != null) {
+                    result.setOverview(overviewBean);
+                    // check thumb
+                    ThumbnailCache cache = new ThumbnailCache(getContext());
+                    if (cache.existsBitmap(uuid)) {
+                        return result;
+                    }
+                }
+            }
+        }
+        finally {
+            db.close();
         }
         return null;
     }
